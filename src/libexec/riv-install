@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+#
+# Summary: Install/upgrade `riv` on the local system
+#
+# Usage: riv install [opts] [version]
+#
+# Options:
+#   -f Force installation, even if the requested version is already installed.
+#   -n Dry run. Don't actually install anything.
+#   -p <path>: Installation prefix. default: /opt/riv
+#
+# Examples:
+#   Install the latest stable version, if it's an upgrade:
+#     riv install
+#   Install a specific release:
+#     riv install 0.0.1
+
+source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+
+## Check script dependencies
+
+_require_dependencies curl tar rsync
+
+## Set defaults
+
+BASE_URL=https://github.com/rivian-community/rivian-usb
+DRY_RUN=
+FORCE=
+PREFIX=/opt/riv
+VERSION=dev
+
+## Define functions
+
+function parse_options() {
+  # parse options
+  while getopts ":fnp:" opt; do
+    case $opt in
+      f) FORCE=1;;
+      n) DRY_RUN=1;;
+      p) PREFIX="$OPTARG";;
+      \?) _die "Unknown option (-${OPTARG})";;
+    esac
+  done
+
+  shift $((OPTIND - 1))
+
+  if [[ "$1" != "" ]]; then
+    VERSION="$1"
+  fi
+}
+
+function install() {
+  local CURRENT_VERSION="$(riv version)"
+  local TMPDIR=
+
+  if [[ "$CURRENT_VERSION" == "$VERSION" ]]; then
+    _say -n "Version '${VERSION}' is already installed. "
+    if [[ "$FORCE" == "1" ]]; then
+      echo "Reinstalling..."
+    else
+      echo "Nothing to do."
+      return
+    fi
+  else
+    _say "Installing version '${VERSION}'..."
+  fi
+
+  function _cleanup() {
+    rm -rf "$TMPDIR"
+  }
+
+  function _download() {
+    local FILE=archive.tar.gz
+    local URL="${BASE_URL}/archive/"${VERSION}".tar.gz"
+
+    pushd "$TMPDIR" >/dev/null
+    curl -s -L "$URL" > "$FILE" || _die "Could not download ${URL}"
+    tar zxf "$FILE"
+    popd >/dev/null
+  }
+
+  function _install() {
+    if [[ "$DRY_RUN" == "1" ]]; then
+      _say "This is a dry run. Not installing."
+    else
+      pushd "$TMPDIR" >/dev/null
+      sudo mkdir -p "$PREFIX" &&
+      sudo rsync -avP --delete rivian-usb-*/src/ "$PREFIX"/ &&
+      sudo ln -fs "$PREFIX"/bin/riv /usr/local/bin/riv
+      popd >/dev/null
+    fi
+  }
+
+  TMPDIR=$(_tmpdir)
+
+  _download &&
+  _install &&
+  _cleanup
+}
+
+function validate_input() {
+  true
+}
+
+## Run the script
+
+parse_options "$@" &&
+validate_input &&
+install
