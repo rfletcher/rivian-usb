@@ -73,31 +73,6 @@ function _expand() {
 }
 
 ##
-# Look up a single Facter fact, including custom facts provided by Puppet
-#
-# Usage:
-#   _fact architecture         # => amd64
-#   _fact ec2_tag_viglink_role # => api
-#
-function _fact() {
-  local FACT="$1"
-
-  local EXTERNAL_OPT=
-  local EXTERNAL_DIR=/etc/facter/facts.d
-  local PUPPET_VAR_DIR=/var/lib/puppet
-
-  if [[ "$FACT" == "" ]]; then
-    return 1
-  fi
-
-  if [[ -d "$EXTERNAL_DIR" ]]; then
-    EXTERNAL_OPT="--external-dir=${EXTERNAL_DIR}"
-  fi
-
-  FACTERLIB="${PUPPET_VAR_DIR}/lib/facter" facter $EXTERNAL_OPT "$FACT"
-}
-
-##
 # Convert a JSON array to a raw list of lines
 #
 # Usage:
@@ -443,8 +418,8 @@ function _require_lib() {
 # Resolve a hostname to an IP address. May return more than one address!
 #
 # Usage:
-#   _resolve puppet-1    # => 172.20.122.212
-#   _resolve viglink.com # => 34.196.83.207\n34.234.0.50
+#   _resolve private-1  # => 10.20.122.212
+#   _resolve rivian.com # => 54.230.163.102\n54.230.163.18
 #
 function _resolve() {
   local HOST="$1"
@@ -475,18 +450,6 @@ function _say() {
   fi
 
    ${ECHO} ${TIMESTAMP}: "$@"
-}
-
-##
-# Get the current script's name
-#
-# DEPRECATED: was used in _script_header, mostly, which is now deprecated
-#
-# Usage:
-#   echo "Usage: $(_script_name) <foo>"
-#
-function _script_name() {
-  basename $0 | tr -d '\n'
 }
 
 ##
@@ -528,6 +491,16 @@ function _to_json_array() {
 
   echo -n "$INPUT" | jq --compact-output --monochrome-output \
     --raw-input --slurp 'split("\n")'
+}
+
+##
+# Create a temporary directory
+#
+# Usage:
+#  TMPDIR=$(_tmpdir); echo foo > $TMPDIR/foo.txt
+#
+function _tmpdir() {
+  mktemp -d riv.XXXX
 }
 
 ##
