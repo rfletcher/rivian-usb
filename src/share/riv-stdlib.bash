@@ -55,6 +55,7 @@ function _error() {
     OPTS="$1"; shift
   fi
 
+  # shellcheck disable=SC2086 # $OPTS might be blank, and we don't want to pass an empty string
   _say $OPTS "Error: $*" 1>&2
 
   return 1
@@ -360,7 +361,7 @@ function _report_result() {
     _say "Done"
   fi
 
-  return $STATUS
+  return "$STATUS"
 }
 
 ##
@@ -401,7 +402,7 @@ function _require_lib() {
   for LIB in "$@"; do
     local LIB_PATH="${_RIV_SHARE}/riv-${LIB}.bash"
 
-    if test -f $LIB_PATH; then
+    if test -f "$LIB_PATH"; then
       # shellcheck disable=SC1090
       source "$LIB_PATH" || exit 1
     else
@@ -451,7 +452,7 @@ function _say() {
     ECHO="echo $1"; shift
   fi
 
-   ${ECHO} ${TIMESTAMP}: "$@"
+   $ECHO "${TIMESTAMP}:" "$@"
 }
 
 ##
@@ -472,12 +473,13 @@ function _strip_heredoc() {
   PREFIX="${PREFIX%%.*}"
 
   if [[ "$INDENT" != "" ]]; then
-    NEW_PREFIX="$(printf ' %.0s' $(seq 1 ${INDENT}))"
+    NEW_PREFIX="$(printf ' %.0s' $(seq 1 "$INDENT"))"
   fi
 
   if [[ "$PREFIX" == "" ]]; then
     echo "${NEW_PREFIX}${INPUT}"
   else
+    # shellcheck disable=SC2001 # we're doing multiple substitutions happening
     echo "$INPUT" | sed "s/^${PREFIX}/${NEW_PREFIX}/"
   fi
 }
@@ -684,7 +686,7 @@ function _validate_single_value() {
 
   _validate_present "$VALUE" "$ERROR_NONE"
 
-  if [[ "$(echo \"$VALUE\" | wc -l)" -gt 1 ]]; then
+  if [[ $(echo "$VALUE" | wc -l) -gt 1 ]]; then
     _die "$ERROR_MANY"
   fi
 }
@@ -714,8 +716,7 @@ function _wait_for() {
 
   [[ "$MESSAGE" != "." ]] && _say "$MESSAGE"
 
-  # shellcheck disable=SC2091
-  while ! $(eval "$CMD"); do
+  while ! eval "$CMD" >/dev/null; do
     if [[ "$TIMEOUT" != "" ]]; then
       local NOW="$(date +%s)"
       local ELAPSED="$((NOW - START))"
@@ -734,7 +735,7 @@ function _wait_for() {
       fi
     fi
 
-    sleep $SLEEP
+    sleep "$SLEEP"
 
     if [[ "$MESSAGE" == "." ]]; then
       echo -n "$MESSAGE"

@@ -12,7 +12,7 @@ test:
 lint:
 	@echo Checking shell script style...
 	@shellcheck --severity style \
-		--exclude SC2155 \
+		--exclude SC1091,SC2155 \
 		$(shell_scripts)
 
 validate:

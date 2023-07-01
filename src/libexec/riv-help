@@ -20,16 +20,17 @@ if [ "$1" = "--complete" ]; then
 fi
 
 # some of the more useful commands, highlighted in the `riv help` output
-read -r -d '' USEFUL_COMMANDS <<-EOT || true
+USEFUL_COMMANDS=(
   commands
   help
-EOT
+)
 
 function command_path() {
   command -v "riv-$command" || command -v "riv-sh-$command" || true
 }
 
 function collect_documentation() {
+  # shellcheck disable=SC2016 # shellcheck doesn't know these are awk vars
   $(type -p gawk awk | head -1) '
     /^Summary:/ {
       summary = substr($0, 10)
@@ -124,7 +125,7 @@ function print_help() {
 
 function print_summaries() {
   local length=$(
-    echo "$USEFUL_COMMANDS" | awk '{print length}' | sort -nr | head -1
+    printf '%s\n' "${USEFUL_COMMANDS[@]}" | awk '{print length}' | sort -nr | head -1
   )
 
   for command; do
@@ -158,14 +159,12 @@ if [ "$1" = "--usage" ]; then
   shift
 fi
 
-USEFUL_COMMANDS=$(echo "  $USEFUL_COMMANDS" | _strip_heredoc)
-
 if [ -z "$1" ] || [ "$1" == "riv" ]; then
   echo "Usage: riv <command> [<args>]"
   [ -z "$usage" ] || exit
   echo
   echo "Some useful riv commands are:"
-  print_summaries $USEFUL_COMMANDS
+  print_summaries "${USEFUL_COMMANDS[@]}"
   echo
   echo "See \`riv help <command>\` for information on a specific command."
 else

@@ -12,7 +12,7 @@ shopt -s nullglob
 
 { for path in ${PATH//:/$'\n'}; do
     for command in "${path}/riv-"*; do
-      echo ${command##*riv-}
+      echo "${command##*riv-}"
     done
   done
 } | sort | uniq
