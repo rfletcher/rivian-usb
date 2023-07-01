@@ -55,7 +55,7 @@ function _error() {
     OPTS="$1"; shift
   fi
 
-  _say $OPTS "Error: $@" 1>&2
+  _say $OPTS "Error: $*" 1>&2
 
   return 1
 }
@@ -67,8 +67,9 @@ function _error() {
 #   _expand "{1..5}"
 #
 function _expand() {
-  [[ "$@" == "" ]] && return
+  [[ "$*" == "" ]] && return
 
+  # shellcheck disable=SC2294
   eval echo -n "$@"
 }
 
@@ -210,7 +211,7 @@ function _is_url() {
 #  FOO=( a b c ); _join , "${FOO[@]}" # => "a,b,c"
 #
 function _join() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
   local IFS="$1";
   shift
@@ -226,7 +227,7 @@ function _join() {
 #  _json_merge '{ x: 1 }' '{ y: 2 }' # => { x: 1, y: 2 }
 #
 function _json_merge() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
   local ARR="$1"; shift
 
@@ -271,9 +272,9 @@ function _mask_secret() {
 #   _max 100 30.49 6 4,000 # => 4000
 #
 function _max() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
-  printf '%s\n' $@ | sed 's/[^0-9.]//g; /^$/ d' | sort -nr | head -1
+  printf '%s\n' "$@" | sed 's/[^0-9.]//g; /^$/ d' | sort -nr | head -1
 }
 
 ##
@@ -283,9 +284,9 @@ function _max() {
 #   _min 100 30.49 6 4,000 # => 6
 #
 function _min() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
-  printf '%s\n' $@ | sed 's/[^0-9.]//g; /^$/ d' | sort -n | head -1
+  printf '%s\n' "$@" | sed 's/[^0-9.]//g; /^$/ d' | sort -n | head -1
 }
 
 ##
@@ -369,18 +370,18 @@ function _report_result() {
 #   _require_dependencies aws jq ls
 #
 function _require_dependencies() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
   local MISSING=()
 
   for DEPENDENCY in "$@"; do
-    if ! type -p "$DEPENDENCY" 2>&1 >/dev/null; then
+    if ! type -p "$DEPENDENCY" >/dev/null 2>&1; then
       MISSING=( "${MISSING[@]}" "$DEPENDENCY" )
     fi
   done
 
-  if [[ "${#MISSING[@]}" > 0 ]]; then
-    _die "This script has missing dependencies: ${MISSING[@]}"
+  if [[ "${#MISSING[@]}" -gt 0 ]]; then
+    _die "This script has missing dependencies: ${MISSING[*]}"
   fi
 
   return 0
@@ -393,7 +394,7 @@ function _require_dependencies() {
 #   _require_lib check
 #
 function _require_lib() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
   local MISSING=()
 
@@ -401,14 +402,15 @@ function _require_lib() {
     local LIB_PATH="${_RIV_SHARE}/riv-${LIB}.bash"
 
     if test -f $LIB_PATH; then
-      source $LIB_PATH || exit 1
+      # shellcheck disable=SC1090
+      source "$LIB_PATH" || exit 1
     else
       MISSING=( "${MISSING[@]}" "$LIB" )
     fi
   done
 
-  if [[ "${#MISSING[@]}" > 0 ]]; then
-    _die "This script requires missing libraries: ${MISSING[@]}"
+  if [[ "${#MISSING[@]}" -gt 0 ]]; then
+    _die "This script requires missing libraries: ${MISSING[*]}"
   fi
 
   return 0
@@ -418,8 +420,8 @@ function _require_lib() {
 # Resolve a hostname to an IP address. May return more than one address!
 #
 # Usage:
-#   _resolve private-1  # => 10.20.122.212
-#   _resolve rivian.com # => 54.230.163.102\n54.230.163.18
+#   _resolve host-1      # => 10.20.122.212
+#   _resolve example.com # => 54.230.163.102\n54.230.163.18
 #
 function _resolve() {
   local HOST="$1"
@@ -428,7 +430,7 @@ function _resolve() {
     false
   elif _is_ip "$HOST"; then
     echo "$HOST"
-  elif type -p getent 2>&1 >/dev/null; then
+  elif type -p getent >/dev/null 2>&1; then
     getent hosts "$HOST" | awk '{ print $1 }'
   else
     ping -c 1 -t 1 -W 1 "$HOST" | head -1 | cut -d '(' -f 2 | cut -d ')' -f 1
@@ -510,7 +512,7 @@ function _tmpdir() {
 #  echo "A Value" | _to_lower # => a value
 #
 function _to_lower() {
-  cat - | tr [:upper:] [:lower:]
+  cat - | tr '[:upper:] [:lower:]'
 }
 
 ##
@@ -522,12 +524,13 @@ function _to_lower() {
 function _to_var_name() {
   local INPUT=$(cat -)
 
+  # shellcheck disable=SC2060
   local OUTPUT=$(echo -n "$INPUT"  |
-    tr [:lower:] [:upper:]         | # convert to uppercase
-    tr -Cd [A-Z][0-9][:space:]._/- | # limit to certain characters
-    tr -C [A-Z][0-9] _             | # convert separators to underscores
-    sed "s/^[0-9_]*//; s/_*\$//"   | # trim invalid/unwanted leading/trailing chars
-    sed "s/__*/_/g"                  # collapse runs of underscores
+    tr '[:lower:]' '[:upper:]'       | # convert to uppercase
+    tr -Cd [A-Z][0-9]'[:space:]._/-' | # limit to certain characters
+    tr -C [A-Z][0-9] _               | # convert separators to underscores
+    sed "s/^[0-9_]*//; s/_*\$//"     | # trim invalid/unwanted leading/trailing chars
+    sed "s/__*/_/g"                    # collapse runs of underscores
   )
 
   if [[ "$OUTPUT" == "" ]]; then
@@ -700,7 +703,7 @@ function _validate_single_value() {
 #     _wait_for "date | grep -q 'Tues'" 60 "Waiting until Tuesday..." 86400
 #
 function _wait_for() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
   local CMD="$1"
   local SLEEP="${2:-5}"
@@ -711,6 +714,7 @@ function _wait_for() {
 
   [[ "$MESSAGE" != "." ]] && _say "$MESSAGE"
 
+  # shellcheck disable=SC2091
   while ! $(eval "$CMD"); do
     if [[ "$TIMEOUT" != "" ]]; then
       local NOW="$(date +%s)"

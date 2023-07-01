@@ -68,24 +68,27 @@ function install() {
 
   function _download() {
     local FILE=archive.tar.gz
-    local URL="${BASE_URL}/archive/"${VERSION}".tar.gz"
+    local URL="${BASE_URL}"/archive/"${VERSION}".tar.gz
 
-    pushd "$TMPDIR" >/dev/null
-    curl -s -L "$URL" > "$FILE" || _die "Could not download ${URL}"
-    tar zxf "$FILE"
-    popd >/dev/null
+    pushd "$TMPDIR" >/dev/null &&
+    curl -s -L "$URL" > "$FILE" &&
+    tar zxf "$FILE" &&
+    popd >/dev/null ||
+    return 1
   }
 
   function _install() {
     if [[ "$DRY_RUN" == "1" ]]; then
       _say "This is a dry run. Not installing."
-    else
-      pushd "$TMPDIR" >/dev/null
-      sudo mkdir -p "$PREFIX" &&
-      sudo rsync -a --delete rivian-usb-*/src/ "$PREFIX"/ &&
-      sudo ln -fs "$PREFIX"/bin/riv /usr/local/bin/riv
-      popd >/dev/null
+      return
     fi
+
+    pushd "$TMPDIR" >/dev/null &&
+    sudo mkdir -p "$PREFIX" &&
+    sudo rsync -a --delete rivian-usb-*/src/ "$PREFIX"/ &&
+    sudo ln -fs "$PREFIX"/bin/riv /usr/local/bin/riv &&
+    popd >/dev/null ||
+    return 1
   }
 
   local TMPDIR=$(_tmpdir)

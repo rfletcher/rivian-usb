@@ -34,7 +34,7 @@ case "$command" in
 "" | "-h" | "--help" )
   exec riv-help
   ;;
-"" | "-v" | "--version" )
+"-v" | "--version" )
   exec riv-version
   ;;
 * )
