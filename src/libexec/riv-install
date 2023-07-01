@@ -51,7 +51,6 @@ function parse_options() {
 
 function install() {
   local CURRENT_VERSION="$(riv version)"
-  local TMPDIR=
 
   if [[ "$CURRENT_VERSION" == "$VERSION" ]]; then
     _say -n "Version '${VERSION}' is already installed. "
@@ -85,13 +84,13 @@ function install() {
     else
       pushd "$TMPDIR" >/dev/null
       sudo mkdir -p "$PREFIX" &&
-      sudo rsync -avP --delete rivian-usb-*/src/ "$PREFIX"/ &&
+      sudo rsync -a --delete rivian-usb-*/src/ "$PREFIX"/ &&
       sudo ln -fs "$PREFIX"/bin/riv /usr/local/bin/riv
       popd >/dev/null
     fi
   }
 
-  TMPDIR=$(_tmpdir)
+  local TMPDIR=$(_tmpdir)
 
   _download &&
   _install &&
