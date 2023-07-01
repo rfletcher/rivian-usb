@@ -1,0 +1,185 @@
+#!/usr/bin/env bash
+#
+# Summary: Display help for a command
+#
+# Usage: riv help [--usage] COMMAND
+#
+# Parses and displays help contents from a command's source file.
+#
+# A command is considered documented if it starts with a comment block that has
+# a `Summary:' or `Usage:' section. Usage instructions can span multiple lines
+# as long as subsequent lines are indented. The remainder of the comment block
+# is displayed as extended documentation.
+
+set -e
+
+source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+
+# Provide riv completions
+if [ "$1" = "--complete" ]; then
+  exec "riv-commands"
+  exit
+fi
+
+# some of the more useful commands, highlighted in the `riv help` output
+read -r -d '' USEFUL_COMMANDS <<-EOT || true
+  commands
+  help
+EOT
+
+function command_path() {
+  command -v "riv-$command" || command -v "riv-sh-$command" || true
+}
+
+function collect_documentation() {
+  $(type -p gawk awk | head -1) '
+    /^Summary:/ {
+      summary = substr($0, 10)
+      next
+    }
+    /^Usage:/ {
+      reading_usage = 1
+      usage = usage "\n" $0
+      next
+    }
+    /^( *$|       )/ && reading_usage {
+      usage = usage "\n" $0
+      next
+    }
+    {
+      reading_usage = 0
+      help = help "\n" $0
+    }
+    function escape(str) {
+      gsub(/[`\\$"]/, "\\\\&", str)
+      return str
+    }
+    function trim(str) {
+      sub(/^\n*/, "", str)
+      sub(/\n*$/, "", str)
+      return str
+    }
+    END {
+      if (usage || summary) {
+        print "summary=\"" escape(trim(summary)) "\""
+        print "usage=\"" escape(trim(usage)) "\""
+        print "help=\"" escape(trim(help)) "\""
+      }
+    }
+  '
+}
+
+function documentation_for() {
+  local filename="$(command_path "$1")"
+
+  if [ -n "$filename" ]; then
+    extract_initial_comment_block < "$filename" | collect_documentation
+  fi
+}
+
+function extract_initial_comment_block() {
+  local PREFIX=' *\([#\/\*]\)'
+
+  sed -ne "
+    /^${PREFIX}/ !{
+      q
+    }
+    s/^${PREFIX}$/\1 /
+    /^${PREFIX} / {
+      s/^${PREFIX} //
+      p
+    }
+  "
+}
+
+function help() {
+  awk '/^[^#]/{p=0} /^# Help:/{p=1} p' "$1" |
+  sed "s/^# Help: //;s/^# //;s/^#//"
+}
+
+function print_help() {
+  local command="$1"
+  local summary usage help
+
+  eval "$(documentation_for "$command")"
+  [ -n "$help" ] || help="$summary"
+
+  if [ -n "$usage" -o -n "$summary" ]; then
+    if [ -n "$usage" ]; then
+      echo "$usage"
+    else
+      echo "Usage: riv ${command}"
+    fi
+    if [ -n "$summary" ]; then
+      echo
+      echo "$summary";
+    fi
+    if [ -n "$help" ]; then
+      echo
+      echo "$help"
+    fi
+  else
+    echo "Sorry, this command isn't documented yet." >&2
+    return 1
+  fi
+}
+
+function print_summaries() {
+  local length=$(
+    echo "$USEFUL_COMMANDS" | awk '{print length}' | sort -nr | head -1
+  )
+
+  for command; do
+    print_summary "$command" "$length"
+  done
+}
+
+function print_summary() {
+  local command="$1"
+  local length="$2"
+  local summary usage help
+
+  eval "$(documentation_for "$command")"
+
+  if [ -n "$summary" ]; then
+    printf "   %-${length}s   %s\n" "$command" "$summary"
+  fi
+}
+
+function print_usage() {
+  local command="$1"
+  local summary usage help
+
+  eval "$(documentation_for "$command")"
+  [ -z "$usage" ] || echo "$usage"
+}
+
+unset usage
+if [ "$1" = "--usage" ]; then
+  usage="1"
+  shift
+fi
+
+USEFUL_COMMANDS=$(echo "  $USEFUL_COMMANDS" | _strip_heredoc)
+
+if [ -z "$1" ] || [ "$1" == "riv" ]; then
+  echo "Usage: riv <command> [<args>]"
+  [ -z "$usage" ] || exit
+  echo
+  echo "Some useful riv commands are:"
+  print_summaries $USEFUL_COMMANDS
+  echo
+  echo "See \`riv help <command>\` for information on a specific command."
+else
+  command="$1"
+  if [ -n "$(command_path "$command")" ]; then
+    if [ -n "$usage" ]; then
+      print_usage "$command"
+    else
+      print_help "$command"
+    fi
+  else
+    echo "riv: no such command \`$command'" >&2
+    exit 1
+  fi
+fi
