@@ -11,8 +11,6 @@
 # as long as subsequent lines are indented. The remainder of the comment block
 # is displayed as extended documentation.
 
-set -e
-
 source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
 
 # Provide riv completions
