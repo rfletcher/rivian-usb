@@ -7,7 +7,6 @@
 # Options:
 #   -f Force installation, even if the requested version is already installed.
 #   -n Dry run. Don't actually install anything.
-#   -p <path>: Installation prefix. default: /opt/riv
 #
 # Examples:
 #   Install the latest stable version, if it's an upgrade:
@@ -33,11 +32,10 @@ VERSION=dev
 
 function parse_options() {
   # parse options
-  while getopts ":fnp:" opt; do
+  while getopts ":fn:" opt; do
     case $opt in
       f) FORCE=1;;
       n) DRY_RUN=1;;
-      p) PREFIX="$OPTARG";;
       \?) _die "Unknown option (-${OPTARG})";;
     esac
   done
