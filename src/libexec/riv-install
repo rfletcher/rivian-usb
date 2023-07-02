@@ -49,6 +49,7 @@ function parse_options() {
 
 function install() {
   local CURRENT_VERSION="$(riv version)"
+  local TMPDIR=
 
   if [[ "$CURRENT_VERSION" == "$VERSION" ]]; then
     _say -n "Version '${VERSION}' is already installed. "
@@ -91,8 +92,12 @@ function install() {
     return 1
   }
 
-  local TMPDIR=$(_tmpdir)
+  function _prepare() {
+    riv util-remount
+    TMPDIR=$(_tmpdir)
+  }
 
+  _prepare &&
   _download &&
   _install &&
   _cleanup
