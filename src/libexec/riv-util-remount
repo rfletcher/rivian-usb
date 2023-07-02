@@ -47,8 +47,6 @@ function remount() {
     if _is_readonly_mount "$MOUNT"; then
       _say "Remouting as read/write: ${MOUNT}..."
       mount "$MOUNT" -o remount,rw
-    else
-      _say "Skipping read/write mount: ${MOUNT}"
     fi
   done
 }
