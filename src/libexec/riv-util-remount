@@ -37,11 +37,7 @@ function remount() {
     MOUNTS+=( "$( _path_to_mount "$DIR" )" )
   done
 
-  # TK does this work for paths/mounts with spaces?
-  OLDIFS="$IFS"; 
-  IFS=$'\n'
-  MOUNTS=( $(printf '%s\n' "${MOUNTS[@]}" | sort | uniq) )
-  IFS="$OLDIFS"
+  mapfile -t MOUNTS < <(printf '%s\n' "${MOUNTS[@]}" | sort | uniq)
 
   for MOUNT in "${MOUNTS[@]}"; do
     if _is_readonly_mount "$MOUNT"; then
