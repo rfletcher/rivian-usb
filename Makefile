@@ -3,7 +3,7 @@ shell_scripts := \
 	$(shell find src -type f -name '*.bash')
 
 
-all: validate test
+all: validate test lint
 
 
 test:
