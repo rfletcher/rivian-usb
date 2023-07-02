@@ -56,7 +56,7 @@ function install() {
     if [[ "$FORCE" == "1" ]]; then
       echo "Reinstalling..."
     else
-      echo "Nothing to do."
+      echo
       return
     fi
   else
@@ -65,11 +65,15 @@ function install() {
 
   function _cleanup() {
     rm -rf "$TMPDIR"
+
+    _say "Done"
   }
 
   function _download() {
     local FILE=archive.tar.gz
     local URL="${BASE_URL}"/archive/"${VERSION}".tar.gz
+
+    _say "Downloading ${URL}..."
 
     pushd "$TMPDIR" >/dev/null &&
     curl -s -L "$URL" > "$FILE" &&
@@ -83,6 +87,8 @@ function install() {
       _say "This is a dry run. Not installing."
       return
     fi
+
+    _say "Installing to ${PREFIX}..."
 
     pushd "$TMPDIR" >/dev/null &&
     sudo mkdir -p "$PREFIX" &&
