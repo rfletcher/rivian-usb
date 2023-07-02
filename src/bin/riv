@@ -24,7 +24,7 @@ libexec_path="$(abs_dirname "$(abs_dirname "$0")/../libexec/foo")"
 command="$1"
 
 export _RIV_VERSION=dev
-export _RIV_COMMAND="${_RIV_COMMAND:-$command}"
+export _RIV_COMMAND="$command"
 export _RIV_ROOT="$(abs_dirname "$libexec_path")"
 export _RIV_SHARE="${_RIV_ROOT}/share"
 

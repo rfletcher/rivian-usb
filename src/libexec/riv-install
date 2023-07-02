@@ -99,7 +99,7 @@ function install() {
   }
 
   function _prepare() {
-    riv util-remount
+    riv util-remount || return 1
     TMPDIR=$(_tmpdir)
   }
 

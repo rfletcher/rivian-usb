@@ -487,7 +487,7 @@ function _say() {
     ECHO="echo $1"; shift
   fi
 
-   $ECHO "${TIMESTAMP}:" "$@"
+   $ECHO "${TIMESTAMP}: ${_RIV_COMMAND}:" "$@"
 }
 
 ##
