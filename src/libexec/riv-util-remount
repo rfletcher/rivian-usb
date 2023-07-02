@@ -31,6 +31,8 @@ function parse_options() {
 function remount() {
   local MOUNTS=()
 
+  _say "Remounting read-only filesystems as read/write..."
+
   for DIR in "${DIRS[@]}"; do
     MOUNTS+=( "$( _path_to_mount "$DIR" )" )
   done
@@ -43,7 +45,7 @@ function remount() {
 
   for MOUNT in "${MOUNTS[@]}"; do
     if _is_readonly_mount "$MOUNT"; then
-      _say "Remouting ${MOUNT}..."
+      _say "Remouting as read/write: ${MOUNT}..."
       mount "$MOUNT" -o remount,rw
     else
       _say "Skipping read/write mount: ${MOUNT}"
