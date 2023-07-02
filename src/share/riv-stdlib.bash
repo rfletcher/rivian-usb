@@ -161,6 +161,31 @@ function _is_ip() {
 }
 
 ##
+# Test whether a mount is read-only
+#
+# Usage:
+#   _is_readonly_mount /boot
+#
+function _is_readonly_mount() {
+  # shellcheck disable=SC2016 # shellcheck doesn't know these are awk vars
+  $(type -p gawk awk | head -1) '
+    $4~/(^|,)ro($|,)/ {
+      print $2
+    }' /proc/mounts |
+  grep -Fqx "$1"
+}
+
+##
+# Test whether a file/dir is on a read-only mount
+#
+# Usage:
+#   _is_readonly_path /home/jdoe
+#
+function _is_readonly_path() {
+  _is_readonly_mount "$(_path_to_mount "$1")"
+}
+
+##
 # Test whether some IP address or hostname points to the local computer
 #
 # Usage:
@@ -288,6 +313,16 @@ function _min() {
   [[ "$*" == "" ]] && return 1
 
   printf '%s\n' "$@" | sed 's/[^0-9.]//g; /^$/ d' | sort -n | head -1
+}
+
+##
+# Get the mount point containing some path
+#
+# Usage:
+#   _path_to_mount /home/jdoe # => /
+#
+function _path_to_mount() {
+  findmnt --canonicalize --output TARGET --noheadings  --target "$1"
 }
 
 ##
