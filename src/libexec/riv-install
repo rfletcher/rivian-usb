@@ -7,6 +7,9 @@
 # Options:
 #   -f Force installation, even if the requested version is already installed.
 #   -n Dry run. Don't actually install anything.
+#   -s <path|url>: Install from this source repository. If this is a local
+#        path, any specified version argument is ignored.
+#        Default: https://github.com/rivian-community/rivian-usb
 #
 # Examples:
 #   Install the latest stable version, if it's an upgrade:
@@ -22,20 +25,21 @@ _require_dependencies curl tar rsync
 
 ## Set defaults
 
-BASE_URL=https://github.com/rivian-community/rivian-usb
 DRY_RUN=
 FORCE=
 PREFIX=/opt/riv
+SOURCE=https://github.com/rivian-community/rivian-usb
 VERSION=dev
 
 ## Define functions
 
 function parse_options() {
   # parse options
-  while getopts ":fn:" opt; do
+  while getopts ":fs:n:" opt; do
     case $opt in
       f) FORCE=1;;
       n) DRY_RUN=1;;
+      s) SOURCE="$OPTARG";;
       \?) _die "Unknown option (-${OPTARG})";;
     esac
   done
@@ -51,17 +55,23 @@ function install() {
   local CURRENT_VERSION="$(riv version)"
   local TMPDIR=
 
-  if [[ "$CURRENT_VERSION" == "$VERSION" ]]; then
-    _say -n "Version '${VERSION}' is already installed. "
-    if [[ "$FORCE" == "1" ]]; then
-      echo "Reinstalling..."
+  function _check_version() {
+    if ! _is_url "$SOURCE"; then
+      _say "Installing from local source..."
     else
-      echo
-      return
+      if [[ "$CURRENT_VERSION" == "$VERSION" ]]; then
+        _say -n "Version '${VERSION}' is already installed. "
+        if [[ "$FORCE" == "1" ]]; then
+          echo "Reinstalling..."
+        else
+          echo
+          return
+        fi
+      else
+        _say "Installing version '${VERSION}'..."
+      fi
     fi
-  else
-    _say "Installing version '${VERSION}'..."
-  fi
+  }
 
   function _cleanup() {
     rm -rf "$TMPDIR"
@@ -69,17 +79,32 @@ function install() {
     _say "Done"
   }
 
-  function _download() {
-    local FILE=archive.tar.gz
-    local URL="${BASE_URL}"/archive/"${VERSION}".tar.gz
+  function _fetch() {
+    function _fetch_remote() {
+      local FILE="${TMPDIR}.tar.gz"
+      local URL="${SOURCE}"/archive/"${VERSION}".tar.gz
 
-    _say "Downloading ${URL}..."
+      _say "Downloading ${URL}..."
 
-    pushd "$TMPDIR" >/dev/null &&
-    curl -s -L "$URL" > "$FILE" &&
-    tar zxf "$FILE" &&
-    popd >/dev/null ||
-    return 1
+      pushd "$TMPDIR" >/dev/null &&
+      curl -s -L "$URL" > "$FILE" &&
+      tar zxf "$FILE" --strip-components=1 &&
+      rm "$FILE" &&
+      popd >/dev/null ||
+      return 1
+    }
+
+    function _fetch_local() {
+      _say "Copying ${SOURCE}..."
+
+      rsync -a --delete "${SOURCE}/" "$TMPDIR"/
+    }
+
+    if _is_url "$SOURCE"; then
+      _fetch_remote
+    else
+      _fetch_local
+    fi
   }
 
   function _install() {
@@ -92,7 +117,7 @@ function install() {
 
     pushd "$TMPDIR" >/dev/null &&
     sudo mkdir -p "$PREFIX" &&
-    sudo rsync -a --delete rivian-usb-*/src/ "$PREFIX"/ &&
+    sudo rsync -a --delete src/ "$PREFIX"/ &&
     sudo ln -fs "$PREFIX"/bin/riv /usr/local/bin/riv &&
     popd >/dev/null ||
     return 1
@@ -103,14 +128,17 @@ function install() {
     TMPDIR=$(_tmpdir)
   }
 
+  _check_version &&
   _prepare &&
-  _download &&
+  _fetch &&
   _install &&
   _cleanup
 }
 
 function validate_input() {
-  true
+  if ! _is_url "$SOURCE" && ! test -d "$SOURCE"; then
+    _die "Source (-s) must be either a URL or local repo path"
+  fi
 }
 
 ## Run the script
