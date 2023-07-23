@@ -14,7 +14,7 @@ source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
 
 ## Check script dependencies
 
-_require_dependencies findmnt
+_require_dependencies findmnt mount
 
 ## Set defaults
 
