@@ -186,37 +186,6 @@ function _is_readonly_path() {
 }
 
 ##
-# Test whether some IP address or hostname points to the local computer
-#
-# Usage:
-#   _is_self 127.0.0.1  # => true
-#   _is_self google.com # => false
-#
-function _is_self() {
-  local TARGET="$1"
-
-  [[ "$TARGET" == "" ]] && return 1
-
-  local TARGET_IPS="$(_resolve "$TARGET")"
-
-  if echo "$TARGET_IPS" | grep -qE '^127\.'; then
-    true
-  else
-    if hostname --all-ip-addresses >/dev/null 2>&1; then
-      local SELF_IPS="$(hostname --all-ip-addresses 2>/dev/null | tr -d ' ')"
-    else
-      local SELF_IPS="$(ifconfig | grep 'inet ' | awk '{ print $2 }' | sed 's/^addr://')"
-    fi
-
-    local COMMON_IP_COUNT="$(comm -1 -2 <(echo "$TARGET_IPS" | sort) <(echo "$SELF_IPS" | sort) | wc -l | tr -d ' ')"
-
-    if [[ "$COMMON_IP_COUNT" == "0" ]]; then
-      return 1
-    fi
-  fi
-}
-
-##
 # Test whether a string is the form of a URL
 #
 # Usage:
@@ -453,27 +422,6 @@ function _require_lib() {
 }
 
 ##
-# Resolve a hostname to an IP address. May return more than one address!
-#
-# Usage:
-#   _resolve host-1      # => 10.20.122.212
-#   _resolve example.com # => 54.230.163.102\n54.230.163.18
-#
-function _resolve() {
-  local HOST="$1"
-
-  if [[ "$HOST" == "" ]]; then
-    false
-  elif _is_ip "$HOST"; then
-    echo "$HOST"
-  elif type -p getent >/dev/null 2>&1; then
-    getent hosts "$HOST" | awk '{ print $1 }'
-  else
-    ping -c 1 -t 1 -W 1 "$HOST" | head -1 | cut -d '(' -f 2 | cut -d ')' -f 1
-  fi
-}
-
-##
 # Echo, with a timestamp
 #
 # Usage:
@@ -585,26 +533,6 @@ function _to_var_name() {
 #
 function _trim() {
   echo "$1" | sed -e 's/^[[:space:]]*//' | sed -e 's/[[:space:]]*$//'
-}
-
-##
-# URL encode a string
-#
-# Usage:
-#   echo "foo bar" | _urlencode # => foo%20bar
-#
-function _urlencode() {
-  cat - | python3 -c "import sys,urllib.parse;sys.stdout.write(urllib.parse.quote(sys.stdin.read()))"
-}
-
-##
-# URL decode a string
-#
-# Usage:
-#   echo "foo%20bar" | _urldecode # => foo bar
-#
-function _urldecode() {
-  cat - | python3 -c "import sys,urllib.parse;sys.stdout.write(urllib.parse.unquote(sys.stdin.read()))"
 }
 
 ##
