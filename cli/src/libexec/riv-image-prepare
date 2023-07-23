@@ -26,20 +26,36 @@ function parse_options() {
 function prepare() {
   _say "Preparing the image build environment..."
 
-  cd "${REPO_PATH}/image/pi-gen"
+  local PI_GEN_DIR="image/pi-gen"
+  local INSTALL_STAGE_DIR=customizations/99-install-rivian-usb
+  local RIV_FILES_DIR="${INSTALL_STAGE_DIR}/files/riv"
+
+  cd "$REPO_PATH" || return 1
+
+  _say "Initializing ${PI_GEN_DIR}..."
+  git submodule deinit -f "$PI_GEN_DIR" >/dev/null
+  git submodule update --init "$PI_GEN_DIR" >/dev/null 2>&1
+
+  cd "$PI_GEN_DIR" || return 1
 
   _say "Configuring pi-gen..."
   cp ../config ./config
 
   _say "Installing customizations..."
-  # skip image generation in earlier stages
-  touch stage*/SKIP_IMAGES
+  # skip default pi-gen image generation
+  touch stage{0..5}/SKIP_IMAGES
   # copy our custom stage
   rsync -a --delete ../customizations/ customizations/
   # copy the standard pi-gen prerun script
   cp stage2/prerun.sh customizations/prerun.sh
   # list package dependencies for installation
-  riv dependencies -p > customizations/99-install-rivian-usb/00-packages
+  riv dependencies -p > "${INSTALL_STAGE_DIR}/00-packages"
+
+  _say "Installing \`riv\`..."
+  mkdir -p "$RIV_FILES_DIR"
+  riv install -s "../.." -t "$RIV_FILES_DIR" >/dev/null
+
+  _say "Done"
 }
 
 function validate_input() {

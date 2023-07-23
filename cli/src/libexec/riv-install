@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #
-# Summary: Install/upgrade `riv` on the local system
+# Summary: Install/upgrade `riv`
+#
+# By default `riv` is installed on the local system. Specify -t to install into
+# some directory instead (as when building an OS image, for example).
 #
 # Usage: riv install [opts] [version]
 #
@@ -10,6 +13,7 @@
 #   -s <path|url>: Install from this source repository. If this is a local
 #        path, any specified version argument is ignored.
 #        Default: https://github.com/rivian-community/rivian-usb
+#   -t <path>: Install into a directory, rather than onto the local system
 #
 # Examples:
 #   Install the latest stable version, if it's an upgrade:
@@ -27,18 +31,22 @@ _require_dependencies curl tar rsync
 
 DRY_RUN=
 FORCE=
-PREFIX=/opt/riv
+PREFIX=/
 SOURCE=https://github.com/rivian-community/rivian-usb
 VERSION=dev
+
+RIV_DIR=opt/riv
+BIN_DIR=usr/local/bin
 
 ## Define functions
 
 function parse_options() {
   # parse options
-  while getopts ":fs:n:" opt; do
+  while getopts ":fs:nt:" opt; do
     case $opt in
       f) FORCE=1;;
       n) DRY_RUN=1;;
+      t) PREFIX="$OPTARG";;
       s) SOURCE="$OPTARG";;
       \?) _die "Unknown option (-${OPTARG})";;
     esac
@@ -57,7 +65,7 @@ function install() {
 
   function _check_version() {
     if ! _is_url "$SOURCE"; then
-      _say "Installing from local source..."
+      _say "Installing from local source"
     else
       if [[ "$CURRENT_VERSION" == "$VERSION" ]]; then
         _say -n "Version '${VERSION}' is already installed. "
@@ -95,7 +103,7 @@ function install() {
     }
 
     function _fetch_local() {
-      _say "Copying ${SOURCE}..."
+      _say "Copying from source..."
 
       rsync -a --delete "${SOURCE}/" "$TMPDIR"/
     }
@@ -113,18 +121,27 @@ function install() {
       return
     fi
 
-    _say "Installing to ${PREFIX}..."
+    _say "Installing to ${PREFIX%/}/${RIV_DIR}..."
 
-    pushd "$TMPDIR" >/dev/null &&
-    sudo mkdir -p "$PREFIX" &&
-    sudo rsync -a --delete src/ "$PREFIX"/ &&
-    sudo ln -fs "$PREFIX"/bin/riv /usr/local/bin/riv &&
+    local SED_BIN=$(which gsed sed | head -1)
+    local REL_RIV_BIN=$(echo "$BIN_DIR" | $SED_BIN -re 's/[^/]+/../g')/${RIV_DIR}/bin/riv
+
+    pushd "$PREFIX" >/dev/null &&
+    mkdir -p "$RIV_DIR" &&
+    mkdir -p "$BIN_DIR" &&
+    rsync -a --delete "${TMPDIR}/cli/src"/ "${RIV_DIR}"/ &&
+    ln -fs "${REL_RIV_BIN}" "${BIN_DIR}/riv" &&
     popd >/dev/null ||
     return 1
   }
 
   function _prepare() {
-    riv util-remount || return 1
+    if ! which findmnt >/dev/null; then
+      _say "Skipping read-write remount"
+    else
+      riv util-remount "${PREFIX}${BIN_DIR}" "${PREFIX}${RIV_DIR}" || return 1
+    fi
+
     TMPDIR=$(_tmpdir)
   }
 

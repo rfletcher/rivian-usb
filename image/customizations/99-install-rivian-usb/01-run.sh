@@ -1,3 +1,3 @@
 #!/bin/bash -e
 
-echo TODO install cli
+rsync -rlptP files/riv/ ${ROOTFS_DIR}/
