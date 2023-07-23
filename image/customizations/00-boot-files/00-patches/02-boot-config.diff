@@ -1,0 +1,11 @@
+--- a/rootfs/boot/config.txt
++++ b/rootfs/boot/config.txt
+@@ -52,6 +52,9 @@
+ # Enable audio (loads snd_bcm2835)
+ dtparam=audio=on
+ 
++# Enable USB gadget mode
++dtoverlay=dwc2
++
+ # Automatically load overlays for detected cameras
+ camera_auto_detect=1

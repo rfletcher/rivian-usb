@@ -1,0 +1,20 @@
+# pi-gen configuration
+#
+# see: https://github.com/RPi-Distro/pi-gen#config
+
+# image config
+DEPLOY_COMPRESSION=none
+IMG_NAME=rivian-usb
+STAGE_LIST="stage0 stage1 stage2 customizations"
+
+# general system config
+ENABLE_SSH=1
+KEYBOARD_LAYOUT="English (US)"
+LOCALE_DEFAULT=en_US.UTF-8
+TARGET_HOSTNAME="$IMG_NAME"
+TIMEZONE_DEFAULT=America/New_York
+
+# wi-fi config (usually set later)
+WPA_COUNTRY=US
+WPA_ESSID=__WPA_SSID__
+WPA_PASSWORD=__WPA_PASSWORD__

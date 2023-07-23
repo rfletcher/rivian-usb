@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+#
+# Summary: Prepare to build a rivian-usb image
+#
+# Usage: riv image-prepare <path/to/repo>
+#
+# Examples:
+#     riv image-prepare rivian-usb
+
+source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+
+## Check script dependencies
+
+_require_dependencies git rsync
+
+## Set defaults
+
+REPO_PATH=
+
+## Define functions
+
+function parse_options() {
+  REPO_PATH="$1"
+}
+
+function prepare() {
+  _say "Preparing the image build environment..."
+
+  cd "${REPO_PATH}/image/pi-gen"
+
+  _say "Configuring pi-gen..."
+  cp ../config ./config
+
+  _say "Installing customizations..."
+  # skip image generation in earlier stages
+  touch stage*/SKIP_IMAGES
+  # copy our custom stage
+  rsync -a --delete ../customizations/ customizations/
+  # copy the standard pi-gen prerun script
+  cp stage2/prerun.sh customizations/prerun.sh
+  # list package dependencies for installation
+  riv dependencies -p > customizations/99-install-rivian-usb/00-packages
+}
+
+function validate_input() {
+  _validate_present "$REPO_PATH" "Repository path not speficied. See \`riv help $_RIV_COMMAND\`."
+
+  test -d "${REPO_PATH}/.git" || _error "Not a git repository: ${REPO_PATH}"
+}
+
+## Run the script
+
+parse_options "$@" &&
+validate_input &&
+prepare
