@@ -487,7 +487,9 @@ function _to_json_array() {
 #  TMPDIR=$(_tmpdir); echo foo > $TMPDIR/foo.txt
 #
 function _tmpdir() {
-  mktemp -d riv.XXXX
+  local MKTEMP_BIN=$(which gmktemp mktemp 2>/dev/null | head -1)
+
+  $MKTEMP_BIN -d --tmpdir riv.XXXXXXX
 }
 
 ##
