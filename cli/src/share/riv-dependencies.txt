@@ -1,0 +1,34 @@
+# `riv` runtime dependencies
+#
+# lines are in '[binary:]package' format, where 'package' is a an apt package
+
+awk:gawk
+bash
+cat:coreutils
+cp:coreutils
+curl
+cut:coreutils
+date:coreutils
+findmnt:util-linux
+git
+grep
+head:coreutils
+jq
+ln:coreutils
+mkdir:coreutils
+mktemp:coreutils
+mount
+mv:coreutils
+pv
+rm:coreutils
+rsync
+sed
+seq:coreutils
+sleep:coreutils
+sort:coreutils
+tail:coreutils
+tar
+touch:coreutils
+tr:coreutils
+uniq:coreutils
+wc:coreutils

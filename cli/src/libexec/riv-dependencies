@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+#
+# Summary: Print `riv` dependencies
+#
+# Usage: riv dependencies [opts]
+#
+# Options:
+#   -b Print binary names only
+#   -p Print package names only
+#
+# Examples:
+#   Show `riv` dependencies in '[binary:]package' format
+#     riv dependencies
+#   Show `riv` dependency package names
+#     riv dependencies -p
+
+source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+
+## Check script dependencies
+
+_require_dependencies cat cut grep sed
+
+## Set defaults
+
+BINARY_ONLY=
+PACKAGE_ONLY=
+
+## Define functions
+
+function parse_options() {
+  # parse options
+  while getopts ":bp" opt; do
+    case $opt in
+      b) BINARY_ONLY=1;;
+      p) PACKAGE_ONLY=1;;
+      \?) _die "Unknown option (-${OPTARG})";;
+    esac
+  done
+}
+
+function show_dependencies() {
+  local DEPS=$(
+    cat "${_RIV_SHARE}/riv-dependencies.txt" |
+    sed -re 's/\s*#.*//' |
+    grep -vE '^\s*$'
+  )
+
+  echo "$DEPS" |
+  if [[ "$BINARY_ONLY" ]]; then
+    cut -d : -f 1
+  elif [[ "$PACKAGE_ONLY" ]]; then
+    cut -d : -f 2
+  else
+    cat -
+  fi | sort | uniq
+}
+
+function validate_input() {
+  _validate_exclusive "$BINARY_ONLY" "$PACKAGE_ONLY" ||
+    _die "Specify -b or -p, but not both"
+}
+
+## Run the script
+
+parse_options "$@" &&
+validate_input &&
+show_dependencies
