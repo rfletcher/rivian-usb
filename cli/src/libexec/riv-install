@@ -139,7 +139,7 @@ function install() {
     if ! which findmnt >/dev/null; then
       _say "Skipping read-write remount"
     else
-      riv util-remount "${PREFIX}${BIN_DIR}" "${PREFIX}${RIV_DIR}" || return 1
+      riv util-remount "${PREFIX##/}/${BIN_DIR}" "${PREFIX##/}${RIV_DIR}" || return 1
     fi
 
     TMPDIR=$(_tmpdir)
