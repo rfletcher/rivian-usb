@@ -27,7 +27,7 @@ function prepare() {
   _say "Preparing the image build environment..."
 
   local PI_GEN_DIR="image/pi-gen"
-  local INSTALL_STAGE_DIR=customizations/99-install-rivian-usb
+  local INSTALL_STAGE_DIR=stage3/99-install-rivian-usb
   local RIV_FILES_DIR="${INSTALL_STAGE_DIR}/files/riv"
 
   cd "$REPO_PATH" || return 1
@@ -43,11 +43,12 @@ function prepare() {
 
   _say "Installing customizations..."
   # skip default pi-gen image generation
-  touch stage{0..5}/SKIP_IMAGES
+  touch stage{0..2}/SKIP_IMAGES
+  rm -rf stage{3..5}
   # copy our custom stage
-  rsync -a --delete ../customizations/ customizations/
+  rsync -a --delete ../customizations/ stage3/
   # copy the standard pi-gen prerun script
-  cp stage2/prerun.sh customizations/prerun.sh
+  cp stage2/prerun.sh stage3/prerun.sh
   # list package dependencies for installation
   riv dependencies -p > "${INSTALL_STAGE_DIR}/00-packages"
 

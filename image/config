@@ -5,7 +5,6 @@
 # image config
 DEPLOY_COMPRESSION=none
 IMG_NAME=rivian-usb
-STAGE_LIST="stage0 stage1 stage2 customizations"
 
 # general system config
 ENABLE_SSH=1
