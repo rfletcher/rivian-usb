@@ -1,22 +1,41 @@
-shell_scripts := \
-	$(shell find src -type f -exec file "{}" \; | grep 'shell script' | cut -d : -f 1) \
-	$(shell find src -type f -name '*.bash')
+all: cli image
 
+## CLI ##
 
-all: validate test lint
+cli_shell_scripts := \
+	$(shell find cli/src -type f -exec file "{}" \; | grep 'shell script' | cut -d : -f 1) \
+	$(shell find cli/src -type f -name '*.bash')
 
+cli: cli_validate cli_lint cli_test
 
-test:
+cli_test:
 	@true
 
-lint:
-	@echo Checking shell script style...
+cli_lint:
+	@echo CLI: Checking shell script style...
 	@shellcheck --severity style \
 		--exclude SC1091,SC2155 \
-		$(shell_scripts)
+		$(cli_shell_scripts)
 
-validate:
-	@echo Validating shell scripts...
+cli_validate:
+	@echo CLI: Validating shell scripts...
 	@shellcheck --severity warning \
 		--exclude SC2155 \
-		$(shell_scripts)
+		$(cli_shell_scripts)
+
+## OS Image ##
+
+image: image_test image_build
+
+image_build: image_build_prepare image_build_run
+
+image_build_prepare:
+	@echo "Image: Configuring image..."
+	@cli/src/bin/riv image-prepare .
+
+image_build_run:
+	@echo "Image: Building OS Image"
+	@cd image/pi-gen && ./build-docker.sh
+
+image_test:
+	@echo "Image: Testing (TODO)..."
