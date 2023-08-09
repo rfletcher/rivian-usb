@@ -1,18 +1,33 @@
 #!/usr/bin/env bash
 #
-# Summary: List all riv commands
+# Summary: List commands and their descriptions
 #
 # Usage: riv commands
 #
-# This command is used for autocompletion, and for `riv-help`.
+# Examples:
+#   List commands and summaries:
+#     riv commands
 
 set -e
 
+SUMMARIES=1
+
+for arg in "$@"; do
+  if [[ "$arg" == "--command-only" ]]; then
+    SUMMARIES=
+    shift
+  fi
+done
+
 shopt -s nullglob
 
-{ for path in ${PATH//:/$'\n'}; do
-    for command in "${path}/riv-"*; do
-      echo "${command##*riv-}"
+{ if [[ -n "$SUMMARIES" ]]; then
+    exec riv-help --commands
+  else
+    for DIR in ${PATH//:/$'\n'}; do
+      for CMD in "${DIR}/riv-"*; do
+        echo "${CMD##*riv-}"
+      done
     done
-  done
+  fi
 } | sort | uniq
