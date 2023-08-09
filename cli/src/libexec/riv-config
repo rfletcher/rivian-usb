@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#
+# Summary: Read and display some `riv` configuration
+#
+# Usage: riv config [opts] [selector]
+#
+# Options:
+#   -f <format>: Output format. "json", "yaml", or "raw". "raw" returns 
+#      JSON for complex values, and the unadorned value otherwise.
+#      Default: "yaml" without a selector, "raw" with a selector
+#
+# Examples:
+#   Print the entire configuration
+#     riv config
+#   Get a specific configuration value
+#     riv config command_defaults/install/source
+
+source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
+
+## Check script dependencies
+
+__require_dependencies jq
+
+## Set defaults
+
+FORMAT=
+SELECTOR=
+
+## Define functions
+
+function main() {
+  if [[ "$FORMAT" == "" ]]; then
+    if [[ "$SELECTOR" == "" ]]; then
+      FORMAT=yaml
+    else
+      FORMAT=raw
+    fi
+  fi
+
+  __get_config "$SELECTOR" | 
+  if [[ "$FORMAT" =~ ^(json|raw)$ ]]; then
+    jq -M -r .
+  else
+    __json_to_yaml
+  fi
+}
+
+function handle_arguments() {
+  SELECTOR="$1"
+}
+
+function handle_options() {
+  if [[ "$#" == "0" ]]; then
+    RIV_OPTIONS=":f:"; return
+  fi
+
+  case "$1" in
+    f) FORMAT="$2";;
+    v) VERBOSE=1;;
+  esac
+}
+
+function validate_input() {
+  true
+}
