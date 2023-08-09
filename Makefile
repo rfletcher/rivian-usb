@@ -12,11 +12,12 @@ cli_shell_scripts := \
 	$(shell find cli/src -type f -name '*.bash')
 
 cli_clean:
+	@echo "CLI: Cleaning up..."
 	@find cli/test/tests -type f -name '*.tmpl.bats' -delete
 	@find cli/test/tests -type d -empty -delete
 
 cli_generate_tests:
-	@echo CLI: Generating tests from templates...
+	@echo "CLI: Generating tests from templates..."
 	@for TEMPLATE in cli/test/templates/*.tmpl.bats; do\
 		for COMMAND in $(cli_command_names); do\
 			mkdir -p cli/test/tests/libexec/riv-$$COMMAND;\
@@ -29,13 +30,13 @@ cli_test: cli_generate_tests
 	@find cli/test/tests -type f -name '*.bats' | xargs bats
 
 cli_lint:
-	@echo CLI: Checking shell script style...
+	@echo "CLI: Checking shell script style..."
 	@shellcheck --severity style \
 		--exclude SC1091,SC2155 \
 		$(cli_shell_scripts)
 
 cli_validate:
-	@echo CLI: Validating shell scripts...
+	@echo "CLI: Validating shell scripts..."
 	@shellcheck --severity warning \
 		--exclude SC2155 \
 		$(cli_shell_scripts)
