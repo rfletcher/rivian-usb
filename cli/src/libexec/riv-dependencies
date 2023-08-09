@@ -44,11 +44,8 @@ function main() {
 }
 
 function handle_options() {
-  if [[ "$#" == "0" ]]; then
-    RIV_OPTIONS=":bp"; return
-  fi
-
   case "$1" in
+    -) RIV_OPTIONS=":bp";;
     b) BINARY_ONLY=1;;
     p) PACKAGE_ONLY=1;;
   esac

@@ -35,7 +35,7 @@ function __main() {
     # does the command script accept options?
     if __function_exists handle_options; then
       COMMAND_HANDLES_OPTS=1
-      handle_options # set RIV_OPTIONS
+      handle_options - # set RIV_OPTIONS
     fi
 
     # parse them either way, so we can warn when options are provided but none are expected

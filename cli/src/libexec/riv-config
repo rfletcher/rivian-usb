@@ -50,13 +50,9 @@ function handle_arguments() {
 }
 
 function handle_options() {
-  if [[ "$#" == "0" ]]; then
-    RIV_OPTIONS=":f:"; return
-  fi
-
   case "$1" in
+    -) RIV_OPTIONS=":f:";;
     f) FORMAT="$2";;
-    v) VERBOSE=1;;
   esac
 }
 
