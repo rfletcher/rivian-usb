@@ -5,9 +5,9 @@
 # Usage: riv image-prepare <path/to/repo>
 #
 # Examples:
-#     riv image-prepare rivian-usb
+#   riv image-prepare rivian-usb
 
-source "${_RIV_SHARE}/riv/lib/stdlib.bash" || exit 1
+source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 
 ## Check script dependencies
 
@@ -19,15 +19,15 @@ REPO_PATH=
 
 ## Define functions
 
-function parse_options() {
+function handle_arguments() {
   REPO_PATH="$1"
 }
 
-function prepare() {
+function main() {
   __say "Preparing the image build environment..."
 
   local PI_GEN_DIR="image/pi-gen"
-  local INSTALL_STAGE_DIR=stage3/99-install-rivian-usb
+  local INSTALL_STAGE_DIR="stage3/99-install-rivian-usb"
   local RIV_FILES_DIR="${INSTALL_STAGE_DIR}/files/riv"
 
   cd "$REPO_PATH" || return 1
@@ -60,13 +60,7 @@ function prepare() {
 }
 
 function validate_input() {
-  _validate_present "$REPO_PATH" "Repository path not speficied. See \`riv help $_RIV_COMMAND\`."
+  __validate_present "$REPO_PATH" "Repository path not speficied. See \`riv help $_RIV_COMMAND\`."
 
-  test -d "${REPO_PATH}/.git" || __error "Not a git repository: ${REPO_PATH}"
+  test -d "${REPO_PATH}/.git" || __die "Not a git repository: ${REPO_PATH}"
 }
-
-## Run the script
-
-parse_options "$@" &&
-validate_input &&
-prepare
