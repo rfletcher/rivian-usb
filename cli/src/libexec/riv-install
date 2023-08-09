@@ -21,7 +21,7 @@
 #   Install a specific release:
 #     riv install 0.0.1
 
-source "${_RIV_SHARE}/riv/lib/stdlib.bash" || exit 1
+source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 
 ## Check script dependencies
 
@@ -40,26 +40,21 @@ BIN_DIR=usr/local/bin
 
 ## Define functions
 
-function parse_options() {
-  # parse options
-  while getopts ":fs:nt:" opt; do
-    case $opt in
-      f) FORCE=1;;
-      n) DRY_RUN=1;;
-      t) PREFIX="$OPTARG";;
-      s) SOURCE="$OPTARG";;
-      \?) __die "Unknown option (-${OPTARG})";;
-    esac
-  done
-
-  shift $((OPTIND - 1))
-
-  if [[ "$1" != "" ]]; then
-    VERSION="$1"
-  fi
+function handle_options() {
+  case $1 in
+    -) RIV_OPTIONS=":fs:nt:";;
+    f) FORCE=1;;
+    n) DRY_RUN=1;;
+    t) PREFIX="$2";;
+    s) SOURCE="$2";;
+  esac
 }
 
-function install() {
+function handle_arguments() {
+  VERSION="$1"
+}
+
+function main() {
   local CURRENT_VERSION="$(riv version)"
   local TMPDIR=
 
@@ -157,9 +152,3 @@ function validate_input() {
     __die "Source (-s) must be either a URL or local repo path"
   fi
 }
-
-## Run the script
-
-parse_options "$@" &&
-validate_input &&
-install
