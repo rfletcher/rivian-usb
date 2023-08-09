@@ -7,11 +7,11 @@
 # Examples:
 #     riv image-prepare rivian-usb
 
-source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+source "${_RIV_SHARE}/riv/lib/stdlib.bash" || exit 1
 
 ## Check script dependencies
 
-_require_dependencies git rsync
+__require_dependencies git rsync
 
 ## Set defaults
 
@@ -24,7 +24,7 @@ function parse_options() {
 }
 
 function prepare() {
-  _say "Preparing the image build environment..."
+  __say "Preparing the image build environment..."
 
   local PI_GEN_DIR="image/pi-gen"
   local INSTALL_STAGE_DIR=stage3/99-install-rivian-usb
@@ -32,16 +32,16 @@ function prepare() {
 
   cd "$REPO_PATH" || return 1
 
-  _say "Initializing ${PI_GEN_DIR}..."
+  __say "Initializing ${PI_GEN_DIR}..."
   git submodule deinit -f "$PI_GEN_DIR" >/dev/null
   git submodule update --init "$PI_GEN_DIR" >/dev/null 2>&1
 
   cd "$PI_GEN_DIR" || return 1
 
-  _say "Configuring pi-gen..."
+  __say "Configuring pi-gen..."
   cp ../config ./config
 
-  _say "Installing customizations..."
+  __say "Installing customizations..."
   # skip default pi-gen image generation
   touch stage{0..2}/SKIP_IMAGES
   rm -rf stage{3..5}
@@ -52,17 +52,17 @@ function prepare() {
   # list package dependencies for installation
   riv dependencies -p > "${INSTALL_STAGE_DIR}/00-packages"
 
-  _say "Installing \`riv\`..."
+  __say "Installing \`riv\`..."
   mkdir -p "$RIV_FILES_DIR"
   riv install -s "../.." -t "$RIV_FILES_DIR" >/dev/null
 
-  _say "Done"
+  __say "Done"
 }
 
 function validate_input() {
   _validate_present "$REPO_PATH" "Repository path not speficied. See \`riv help $_RIV_COMMAND\`."
 
-  test -d "${REPO_PATH}/.git" || _error "Not a git repository: ${REPO_PATH}"
+  test -d "${REPO_PATH}/.git" || __error "Not a git repository: ${REPO_PATH}"
 }
 
 ## Run the script

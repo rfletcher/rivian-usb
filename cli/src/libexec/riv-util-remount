@@ -10,11 +10,11 @@
 #   Remount the filesystem containing /foo as read-write
 #     riv util-remount /foo
 
-source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+source "${_RIV_SHARE}/riv/lib/stdlib.bash" || exit 1
 
 ## Check script dependencies
 
-_require_dependencies findmnt mount
+__require_dependencies findmnt mount
 
 ## Set defaults
 
@@ -31,17 +31,17 @@ function parse_options() {
 function remount() {
   local MOUNTS=()
 
-  _say "Remounting read-only filesystems as read/write..."
+  __say "Remounting read-only filesystems as read/write..."
 
   for DIR in "${DIRS[@]}"; do
-    MOUNTS+=( "$( _path_to_mount "$DIR" )" )
+    MOUNTS+=( "$( __path_to_mount "$DIR" )" )
   done
 
   mapfile -t MOUNTS < <(printf '%s\n' "${MOUNTS[@]}" | sort | uniq)
 
   for MOUNT in "${MOUNTS[@]}"; do
-    if _is_readonly_mount "$MOUNT"; then
-      _say "Remouting as read/write: ${MOUNT}..."
+    if __is_readonly_mount "$MOUNT"; then
+      __say "Remouting as read/write: ${MOUNT}..."
       mount "$MOUNT" -o remount,rw
     fi
   done
@@ -49,7 +49,7 @@ function remount() {
 
 function validate_input() {
   for DIR in "${DIRS[@]}"; do
-    test -d "$DIR" || _die "Path does not exist: $DIR"
+    test -d "$DIR" || __die "Path does not exist: $DIR"
   done
 }
 

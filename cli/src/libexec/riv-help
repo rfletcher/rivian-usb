@@ -11,7 +11,7 @@
 # as long as subsequent lines are indented. The remainder of the comment block
 # is displayed as extended documentation.
 
-source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+source "${_RIV_ROOT}/share/riv/lib/stdlib.bash" || exit 1
 
 # Provide riv completions
 if [ "$1" = "--complete" ]; then

@@ -21,11 +21,11 @@
 #   Install a specific release:
 #     riv install 0.0.1
 
-source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+source "${_RIV_SHARE}/riv/lib/stdlib.bash" || exit 1
 
 ## Check script dependencies
 
-_require_dependencies curl tar rsync
+__require_dependencies curl tar rsync
 
 ## Set defaults
 
@@ -48,7 +48,7 @@ function parse_options() {
       n) DRY_RUN=1;;
       t) PREFIX="$OPTARG";;
       s) SOURCE="$OPTARG";;
-      \?) _die "Unknown option (-${OPTARG})";;
+      \?) __die "Unknown option (-${OPTARG})";;
     esac
   done
 
@@ -64,11 +64,11 @@ function install() {
   local TMPDIR=
 
   function _check_version() {
-    if ! _is_url "$SOURCE"; then
-      _say "Installing from local source"
+    if ! __is_url "$SOURCE"; then
+      __say "Installing from local source"
     else
       if [[ "$CURRENT_VERSION" == "$VERSION" ]]; then
-        _say -n "Version '${VERSION}' is already installed. "
+        __say -n "Version '${VERSION}' is already installed. "
         if [[ "$FORCE" == "1" ]]; then
           echo "Reinstalling..."
         else
@@ -76,7 +76,7 @@ function install() {
           return
         fi
       else
-        _say "Installing version '${VERSION}'..."
+        __say "Installing version '${VERSION}'..."
       fi
     fi
   }
@@ -84,7 +84,7 @@ function install() {
   function _cleanup() {
     rm -rf "$TMPDIR"
 
-    _say "Done"
+    __say "Done"
   }
 
   function _fetch() {
@@ -92,7 +92,7 @@ function install() {
       local FILE="${TMPDIR}.tar.gz"
       local URL="${SOURCE}"/archive/"${VERSION}".tar.gz
 
-      _say "Downloading ${URL}..."
+      __say "Downloading ${URL}..."
 
       pushd "$TMPDIR" >/dev/null &&
       curl -s -L "$URL" > "$FILE" &&
@@ -103,12 +103,12 @@ function install() {
     }
 
     function _fetch_local() {
-      _say "Copying from source..."
+      __say "Copying from source..."
 
       rsync -a --delete "${SOURCE}/" "$TMPDIR"/
     }
 
-    if _is_url "$SOURCE"; then
+    if __is_url "$SOURCE"; then
       _fetch_remote
     else
       _fetch_local
@@ -117,11 +117,11 @@ function install() {
 
   function _install() {
     if [[ "$DRY_RUN" == "1" ]]; then
-      _say "This is a dry run. Not installing."
+      __say "This is a dry run. Not installing."
       return
     fi
 
-    _say "Installing to ${PREFIX%/}/${RIV_DIR}..."
+    __say "Installing to ${PREFIX%/}/${RIV_DIR}..."
 
     local SED_BIN=$(which gsed sed | head -1)
     local REL_RIV_BIN=$(echo "$BIN_DIR" | $SED_BIN -re 's/[^/]+/../g')/${RIV_DIR}/bin/riv
@@ -137,12 +137,12 @@ function install() {
 
   function _prepare() {
     if ! which findmnt >/dev/null; then
-      _say "Skipping read-write remount"
+      __say "Skipping read-write remount"
     else
       riv util-remount "${PREFIX##/}/${BIN_DIR}" "${PREFIX##/}${RIV_DIR}" || return 1
     fi
 
-    TMPDIR=$(_tmpdir)
+    TMPDIR=$(__tmpdir)
   }
 
   _check_version &&
@@ -153,8 +153,8 @@ function install() {
 }
 
 function validate_input() {
-  if ! _is_url "$SOURCE" && ! test -d "$SOURCE"; then
-    _die "Source (-s) must be either a URL or local repo path"
+  if ! __is_url "$SOURCE" && ! test -d "$SOURCE"; then
+    __die "Source (-s) must be either a URL or local repo path"
   fi
 }
 
