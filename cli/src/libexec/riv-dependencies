@@ -14,11 +14,11 @@
 #   Show `riv` dependency package names
 #     riv dependencies -p
 
-source "${_RIV_SHARE}/riv-stdlib.bash" || exit 1
+source "${_RIV_SHARE}/riv/lib/stdlib.bash" || exit 1
 
 ## Check script dependencies
 
-_require_dependencies cat cut grep sed
+__require_dependencies cat cut grep sed
 
 ## Set defaults
 
@@ -33,14 +33,14 @@ function parse_options() {
     case $opt in
       b) BINARY_ONLY=1;;
       p) PACKAGE_ONLY=1;;
-      \?) _die "Unknown option (-${OPTARG})";;
+      \?) __die "Unknown option (-${OPTARG})";;
     esac
   done
 }
 
 function show_dependencies() {
   local DEPS=$(
-    sed -re 's/\s*#.*//' "${_RIV_SHARE}/riv-dependencies.txt" |
+    sed -re 's/\s*#.*//' "${_RIV_SHARE}/riv/dependencies.txt" |
     grep -vE '^\s*$'
   )
 
@@ -51,12 +51,12 @@ function show_dependencies() {
     cut -d : -f 2
   else
     cat -
-  fi | sort | uniq
+  fi | grep -v '^$' | sort | uniq
 }
 
 function validate_input() {
   _validate_exclusive "$BINARY_ONLY" "$PACKAGE_ONLY" ||
-    _die "Specify -b or -p, but not both"
+    __die "Specify -b or -p, but not both"
 }
 
 ## Run the script

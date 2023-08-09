@@ -19,7 +19,9 @@ mkdir:coreutils
 mktemp:coreutils
 mount
 mv:coreutils
+python3
 pv
+:python3-ruamel.yaml
 rm:coreutils
 rsync
 sed
