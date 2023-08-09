@@ -2,14 +2,25 @@
 #
 # Summary: Display help for riv, or a command
 #
-# Usage: riv help [--usage] COMMAND
+# Usage: riv help [opts] [command]
 #
-# Parses and displays help contents from a command's source file.
+# Help content are parsed from from a command's source file.
 #
 # A command is considered documented if it starts with a comment block that has
 # a `Summary:' or `Usage:' section. Usage instructions can span multiple lines
 # as long as subsequent lines are indented. The remainder of the comment block
 # is displayed as extended documentation.
+#
+# Options:
+#   -u: Only print usage for the specified command, not the full docs
+#
+# Examples:
+#   Show general `riv` help:
+#     riv help
+#   Show help for a the `riv config` command:
+#     riv help config
+#   Show just the usage details for `riv config`:
+#     riv help -u config
 
 set -e
 
@@ -25,7 +36,7 @@ fi
 if [[ "$1" == "--commands" ]]; then
   shift
   ONLY_COMMANDS=1
-  USEFUL_COMMANDS=$(riv-commands --command-only | grep -Ev '^(completions|template)$')
+  USEFUL_COMMANDS=$(riv-commands --command-only | grep -Ev '^(completions)$')
 # some of the more useful commands, highlighted in the `riv help` output
 else
   read -r -d '' USEFUL_COMMANDS <<-EOT || true
@@ -171,9 +182,13 @@ function print_usage() {
 }
 
 unset USAGE
-if [[ "$1" == "--usage" ]]; then
+if [[ "$1" == "-u" ]]; then
   USAGE="1"
   shift
+  if [[ -z "$1" ]]; then
+    riv help -u help
+    exit 1
+  fi
 fi
 
 if [[ -z "$1" ]] || [[ "$1" == "riv" ]]; then
