@@ -1,0 +1,9 @@
+---
+foo: bar
+list:
+  - one
+  - two
+  - three
+object:
+  key1: value1
+  key2: value2
