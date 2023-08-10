@@ -1,3 +1,5 @@
+SHELL=/bin/bash
+
 all: cli image
 clean: cli_clean image_clean
 test: cli_test image_test
@@ -48,11 +50,9 @@ cli_validate:
 image_dir := image/pi-gen
 stage_dir := $(image_dir)/stage3/99-install-rivian-usb
 
-image: image_build image_test
+image: image_clean image_configure image_build image_test
 
-image_build: image_clean image_configure image_build_run
-
-image_build_run:
+image_build:
 	@echo "Image: Building OS Image"
 	@cd $(image_dir) && ./build-docker.sh
 
