@@ -226,7 +226,7 @@ is_match() {
   local B="$2"
 
   # Convert our regexp format to Bash regexp format (strip the slash bookends)
-  if [[ "${A:0:1}${A:(-1)}" == "//" ]]; then
+  if [[ ${#A} -gt 1 ]] && [[ "${A:0:1}${A:(-1)}" == "//" ]]; then
     A=${A#/}; A=${A%/}
 
     [[ "$B" =~ $A ]]
