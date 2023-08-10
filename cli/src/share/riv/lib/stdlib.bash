@@ -90,6 +90,18 @@ function __expand() {
 }
 
 ##
+# Get the mount point containing some path
+#
+# Usage:
+#   __find_mount /home/jdoe # => /
+#
+function __find_mount() {
+  [[ "$#" == "1" ]] || return 1
+
+  findmnt --canonicalize --output TARGET --noheadings  --target "$1"
+}
+
+##
 # Test whether a function is defined
 #
 # Usage: __function_exists <name>
@@ -426,16 +438,6 @@ function __pad() {
   local VALUE="$2"
 
   printf "%${WIDTH}s%s%${WIDTH}s" "" "$VALUE" ""
-}
-
-##
-# Get the mount point containing some path
-#
-# Usage:
-#   __path_to_mount /home/jdoe # => /
-#
-function __path_to_mount() {
-  findmnt --canonicalize --output TARGET --noheadings  --target "$1"
 }
 
 ##

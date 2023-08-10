@@ -34,7 +34,7 @@ function remount() {
   __say "Remounting read-only filesystems as read/write..."
 
   for DIR in "${DIRS[@]}"; do
-    MOUNTS+=( "$( __path_to_mount "$DIR" )" )
+    MOUNTS+=( "$(__find_mount "$DIR")" )
   done
 
   mapfile -t MOUNTS < <(printf '%s\n' "${MOUNTS[@]}" | sort | uniq)
