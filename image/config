@@ -15,5 +15,3 @@ TIMEZONE_DEFAULT=America/New_York
 
 # wi-fi config (usually set later)
 WPA_COUNTRY=US
-WPA_ESSID=__WPA_SSID__
-WPA_PASSWORD=__WPA_PASSWORD__
