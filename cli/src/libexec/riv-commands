@@ -4,6 +4,9 @@
 #
 # Usage: riv commands
 #
+# Options:
+#   -s Short output; command names only
+#
 # Examples:
 #   List commands and summaries:
 #     riv commands
@@ -13,7 +16,7 @@ set -e
 SUMMARIES=1
 
 for arg in "$@"; do
-  if [[ "$arg" == "--command-only" ]]; then
+  if [[ "$arg" == "-s" ]]; then
     SUMMARIES=
     shift
   fi
@@ -21,13 +24,14 @@ done
 
 shopt -s nullglob
 
-{ if [[ -n "$SUMMARIES" ]]; then
-    exec riv-help --commands
-  else
-    for DIR in ${PATH//:/$'\n'}; do
-      for CMD in "${DIR}/riv-"*; do
-        echo "${CMD##*riv-}"
-      done
+if [[ -n "$SUMMARIES" ]]; then
+  echo -e 'See `riv help <command>` to read about a specific subcommand\n'
+
+  riv-help --commands | sed 's/^/  /'
+else
+  for DIR in ${PATH//:/$'\n'}; do
+    for CMD in "${DIR}/riv-"*; do
+      echo "${CMD##*riv-}"
     done
-  fi
-} | sort | uniq
+  done | sort | uniq
+fi

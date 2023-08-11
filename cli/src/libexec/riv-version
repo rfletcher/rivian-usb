@@ -10,12 +10,10 @@
 
 set -e
 
-if [[ "$1" == "-l" ]]; then
-  echo -n "Rivian-USB version: "
-fi
-
-echo "${_RIV_VERSION:dev}"
+VERSION=${_RIV_VERSION:-dev}
 
 if [[ "$1" == "-l" ]]; then
-  echo "https://github.com/rivian-community/rivian-usb"
+  echo "Rivian-USB ${VERSION}"
+else
+  echo "$VERSION"
 fi

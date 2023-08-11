@@ -36,7 +36,7 @@ fi
 if [[ "$1" == "--commands" ]]; then
   shift
   ONLY_COMMANDS=1
-  USEFUL_COMMANDS=$(riv-commands --command-only | grep -Ev '^(completions)$')
+  USEFUL_COMMANDS=$(riv-commands -s | grep -Ev '^(completions)$')
 # some of the more useful commands, highlighted in the `riv help` output
 else
   read -r -d '' USEFUL_COMMANDS <<-EOT || true
@@ -193,7 +193,7 @@ fi
 
 if [[ -z "$1" ]] || [[ "$1" == "riv" ]]; then
   if [[ "$ONLY_COMMANDS" == "" ]]; then
-    [[ -z "$USAGE" ]] && echo -e "riv v$(riv version)\n"
+    [[ -z "$USAGE" ]] && echo -e "$(riv version -l)\n"
     echo "Usage: riv <command> [<args...>]"
     [[ -z "$USAGE" ]] || exit
     echo
@@ -204,7 +204,7 @@ if [[ -z "$1" ]] || [[ "$1" == "riv" ]]; then
 
   if [[ "$ONLY_COMMANDS" == "" ]]; then
     echo
-    echo "See \`riv help <command>\` for information on a specific command."
+    echo "See \`riv help <command>\` for information about a specific command."
   fi
 else
   COMMAND="$1"

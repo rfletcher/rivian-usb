@@ -6,12 +6,12 @@ load ../../helpers/all_helpers
   run riv commands
 
   assert_success
-  assert_line "/^commands /"
-  assert_line "/^help /"
+  assert_line '/^  commands /'
+  assert_line '/^  help /'
 }
 
-@test "commands: quiet output" {
-  run riv commands --command-only
+@test "commands: sort output" {
+  run riv commands -s
 
   assert_success
   assert_line "commands"
