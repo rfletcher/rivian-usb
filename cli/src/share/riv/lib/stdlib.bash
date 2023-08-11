@@ -242,6 +242,16 @@ function __is_readonly_path() {
 }
 
 ##
+# Test whether we're running on a "single-board computer" (raspberry pi, etc.)
+#
+function __is_sbc() {
+  local MODEL=/sys/firmware/devicetree/base/model
+
+  test -f "$MODEL" &&
+  grep -qE "raspbery pi|rock pi|radxa zero" "$MODEL"
+}
+
+##
 # Test whether a string is the form of a URL
 #
 # Usage:
