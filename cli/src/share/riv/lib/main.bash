@@ -5,6 +5,7 @@
 #
 # 1. `source` this script in yours
 # 2. Define a `main` function
+#    2a) (Optionally) define a `quit` function, to handle SIGINT, etc.
 # 3. Your `main` will be called automatically (after `handle_options`,
 #    `handle_arguments` and `validate_input`, if they're defined).
 
@@ -61,6 +62,18 @@ function __main() {
   __function_exists main             && main
 }
 
-# Run the script
+function __quit() {
+  __function_exists quit && quit "$1"
 
+  trap - "$1"
+  kill -"$1" -$$
+  exit
+}
+
+# handle ^C, etc.
+for SIGNAL in INT TERM; do
+  trap "__quit $SIGNAL" "$SIGNAL"
+done
+
+# run main()
 trap __main EXIT
