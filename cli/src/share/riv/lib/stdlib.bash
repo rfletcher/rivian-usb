@@ -244,6 +244,9 @@ function __is_readonly_path() {
 ##
 # Test whether we're running on a "single-board computer" (raspberry pi, etc.)
 #
+# Usage:
+#   __is_sbc
+#
 function __is_sbc() {
   local MODEL=/sys/firmware/devicetree/base/model
 
