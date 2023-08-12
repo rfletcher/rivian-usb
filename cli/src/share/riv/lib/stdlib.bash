@@ -252,6 +252,16 @@ function __is_sbc() {
 }
 
 ##
+# Test whether we're running as a background service
+#
+# Usage:
+#   __is_systemd_service
+#
+function __is_systemd_service() {
+  [[ "$INVOCATION_ID" != "" ]]
+}
+
+##
 # Test whether a string is the form of a URL
 #
 # Usage:
@@ -593,15 +603,24 @@ function __require_lib() { __require_libs "$@"; }
 #
 function __say() {
   local ECHO="echo -e"
-  local TIMESTAMP=$($(which gdate date | head -1) --rfc-3339=seconds)
+  local PREFIX=
+  local TIMESTAMP=
 
   if [[ "$1" =~ ^- ]]; then
     ECHO="echo $1"
     shift
   fi
 
-  echo -n "${TIMESTAMP}:"
-  printf " %${_RIV_INDENT}s" ""
+  if ! __is_systemd_service; then
+    TIMESTAMP="$($(which gdate date | head -1) --rfc-3339=seconds): "
+  fi
+
+  if [[ "$_RIV_INDENT" -gt 0 ]]; then
+    PREFIX=$(printf "%${_RIV_INDENT}s" "")
+  fi
+
+  echo -n "${TIMESTAMP}${PREFIX}"
+
   ${ECHO} "$@"
 }
 

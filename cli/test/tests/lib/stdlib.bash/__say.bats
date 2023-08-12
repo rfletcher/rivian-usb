@@ -29,6 +29,12 @@ load ../../../helpers/lib_helpers/stdlib_helpers
   assert_success '/line1\\nline2$/'
 }
 
+@test "stdlib: __say: within systemd" {
+  INVOCATION_ID=123 run __say -n foo
+
+  assert_success foo
+}
+
 @test "stdlib: __say: indentation" {
   function test() {
     __say foo
