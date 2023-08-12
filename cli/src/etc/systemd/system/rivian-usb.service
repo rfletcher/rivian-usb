@@ -1,0 +1,14 @@
+[Unit]
+Description=rivian-usb service
+After=
+Wants=
+Requires=
+
+[Service]
+Type=simple
+Restart=on-failure
+SyslogIdentifier=rivian-usb
+ExecStart=/usr/local/bin/riv service
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#
+# Summary: Run the main service loop
+#
+# Usage: riv service
+
+source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
+
+function main() {
+  __say "Starting up..."
+
+  while true; do
+    __say "Looping..."
+
+    # sleep in the background so it doesn't block SIGTERM
+    sleep 60 &
+    wait $!
+  done
+}
+
+function quit() {
+  __say "Shutting down"
+}
+
+function validate_input() {
+  true
+}
