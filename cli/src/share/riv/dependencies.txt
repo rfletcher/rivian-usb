@@ -22,6 +22,8 @@ mv:coreutils
 python3
 pv
 :python3-ruamel.yaml
+readlink:coreutils
+realpath:coreutils
 rm:coreutils
 rsync
 sed

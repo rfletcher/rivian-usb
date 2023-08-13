@@ -2,50 +2,51 @@
 #
 # Summary: Install/upgrade `riv`
 #
-# By default `riv` is installed on the local system. Specify -t to install into
-# some directory instead (as when building an OS image, for example).
-#
 # Usage: riv install [opts] [version]
 #
 # Options:
-#   -f Force installation, even if the requested version is already installed.
-#   -n Dry run. Don't actually install anything.
+#   -c Skip system configuration. No systemd service, etc.
+#   -f Force reinstallation
+#   -i Skip file installation
 #   -s <path|url>: Install from this source repository. If this is a local
-#        path, any specified version argument is ignored.
-#        Default: https://github.com/rivian-community/rivian-usb
-#   -t <path>: Install into a directory, rather than onto the local system
+#      path, any specified version argument is ignored.
+#      Default: https://github.com/rivian-community/rivian-usb
+#   -t <path>: Install into this directory. Default: /opt/riv
 #
 # Examples:
-#   Install the latest stable version, if it's an upgrade:
+#   Install the latest stable version and configure the system:
 #     riv install
 #   Install a specific release:
 #     riv install 0.0.1
+#   Copy files into tmp/, and skip system configuration:
+#     riv install -c -t tmp/
+#   Configure the system to use the copy of `riv` already installed in /foo
+#     riv install -i -t /foo
 
 source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 
 ## Check script dependencies
 
-__require_dependencies curl tar rsync
+__require_dependencies curl tar rsync systemctl
 
 ## Set defaults
 
-DRY_RUN=
+CONFIGURE_SYSTEM=1
+COPY_FILES=1
 FORCE=
-PREFIX=/
+TARGET=/opt/riv
 SOURCE=https://github.com/rivian-community/rivian-usb
 VERSION=dev
-
-RIV_DIR=opt/riv
-BIN_DIR=usr/local/bin
 
 ## Define functions
 
 function handle_options() {
   case $1 in
-    -) RIV_OPTIONS=":fs:nt:";;
+    -) RIV_OPTIONS=":cfis:t:";;
+    c) CONFIGURE_SYSTEM=;;
     f) FORCE=1;;
-    n) DRY_RUN=1;;
-    t) PREFIX="$2";;
+    i) COPY_FILES=;;
+    t) TARGET="$2";;
     s) SOURCE="$2";;
   esac
 }
@@ -82,6 +83,19 @@ function main() {
     __say "Done"
   }
 
+  function _copy_files() {
+    __say "Writing to ${TARGET}..."
+
+    mkdir -p "$TARGET" &&
+    rsync -a --delete "${TMPDIR}/cli/src/" "${TARGET}/"
+  }
+
+  function _enable_service() {
+    __say "Configuring the service..."
+
+    __say "(todo)"
+  }
+
   function _fetch() {
     function _fetch_remote() {
       local FILE="${TMPDIR}.tar.gz"
@@ -98,7 +112,7 @@ function main() {
     }
 
     function _fetch_local() {
-      __say "Copying from source..."
+      __say "Reading from source..."
 
       rsync -a --delete "${SOURCE}/" "$TMPDIR"/
     }
@@ -111,38 +125,48 @@ function main() {
   }
 
   function _install() {
-    if [[ "$DRY_RUN" == "1" ]]; then
-      __say "This is a dry run. Not installing."
-      return
-    fi
+    __say "Installing onto the system..."
 
-    __say "Installing to ${PREFIX%/}/${RIV_DIR}..."
+    local SOURCE_DIR FILE
 
-    local SED_BIN=$(which gsed sed | head -1)
-    local REL_RIV_BIN=$(echo "$BIN_DIR" | $SED_BIN -re 's/[^/]+/../g')/${RIV_DIR}/bin/riv
+    pushd "$TARGET" >/dev/null
+    for SOURCE_DIR in bin etc; do
+      if __is_raspberry_pi; then
+        riv util-remount "/${SOURCE_DIR}" || return 1
+      fi
 
-    pushd "$PREFIX" >/dev/null &&
-    mkdir -p "$RIV_DIR" &&
-    mkdir -p "$BIN_DIR" &&
-    rsync -a --delete "${TMPDIR}/cli/src"/ "${RIV_DIR}"/ &&
-    ln -fs "${REL_RIV_BIN}" "${BIN_DIR}/riv" &&
+      find "$SOURCE_DIR" -type d -exec mkdir -p "/{}" \;
+
+      while read -r FILE; do
+        ! test -e "$FILE" || rm -rf "/$FILE"
+        ln -fs $(__abspath "${TARGET}/${FILE}") "/$FILE" 
+      done < <(find "$SOURCE_DIR" -type f)
+    done
     popd >/dev/null ||
     return 1
   }
 
   function _prepare() {
-    if __is_sbc; then
-      riv util-remount "${PREFIX##/}/${BIN_DIR}" "${PREFIX##/}/${RIV_DIR}" ||
+    if __is_raspberry_pi; then
+      riv util-remount "$TARGET" ||
       return 1
     fi
 
     TMPDIR=$(__tmpdir)
   }
 
-  _check_version &&
-  _prepare &&
-  _fetch &&
-  _install &&
+  if [[ "$COPY_FILES" == "1" ]]; then
+    _check_version &&
+    _prepare &&
+    _fetch &&
+    _copy_files
+  fi
+
+  if [[ "$CONFIGURE_SYSTEM" == "1" ]]; then
+    _install &&
+    _enable_service
+  fi
+
   _cleanup
 }
 

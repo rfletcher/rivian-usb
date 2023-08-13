@@ -3,6 +3,26 @@
 #
 
 ##
+# Get the canonical absolute path to some file/directory
+#
+# Usage:
+#    __abspath <target>
+#
+# Examples:
+#    __abspath ~foo/../bar # => /home/bar
+#
+function __abspath() {
+  local READLINK_BIN=$(which greadlink readlink | head -1)
+
+  if [[ $# -ne 1 ]]; then
+    __error "__abspath requires exactly one argument"
+    return 1
+  fi
+
+  $READLINK_BIN --canonicalize-missing "$1"
+}
+
+##
 # Ask the user to confirm whether they'd like to proceed
 #
 # Usage:
@@ -247,6 +267,7 @@ function __is_readonly_path() {
 # Usage:
 #   __is_sbc
 #
+function __is_raspberry_pi() { __is_sbc "$@"; }
 function __is_sbc() {
   local MODEL=/sys/firmware/devicetree/base/model
 
@@ -518,6 +539,33 @@ function __prompt_for_var() {
 }
 
 ##
+# Get the relative path from one path to another
+#
+# Usage:
+#    __relpath <target path>
+#    __relpath <source path> <target path>
+#
+# Examples:
+#    __relpath /foo/bar/baz /foo # => ../..
+#
+function __relpath() {
+  local REALPATH_BIN=$(which grealpath realpath | head -1)
+  local FROM=.
+  local TO=
+
+  if [[ $# -eq 1 ]]; then
+    TO="$1"
+  elif [[ $# -eq 2 ]]; then
+    FROM="$1"
+    TO="$2"
+  else
+    __error "__relpath requires 1 or 2 arguments"
+  fi
+
+  $REALPATH_BIN --canonicalize-missing --relative-to "$FROM" "$TO"
+}
+
+##
 # Translate an exit status to English
 #
 # Usage:
@@ -564,11 +612,12 @@ function __require_dependencies() {
 ##
 # Ensure one or more shared libraries are loaded
 #
-# Usage: __require_lib <lib name...>
+# Usage: __require_libs <lib name...>
 #
 # Examples:
-#   __require_lib aws # => true
+#   __require_libs aws # => true
 #
+function __require_lib() { __require_libs "$@"; }
 function __require_libs() {
   [[ "$@" == "" ]] && return 1
 
@@ -593,7 +642,6 @@ function __require_libs() {
 
   return 0
 }
-function __require_lib() { __require_libs "$@"; }
 
 ##
 # Echo, with a timestamp.

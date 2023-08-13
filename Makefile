@@ -73,7 +73,7 @@ image_configure:
 	@cli/src/bin/riv dependencies -p > $(stage_dir)/00-packages
   # copy `riv` into the image
 	@mkdir -p $(stage_dir)/files/riv
-	@cli/src/bin/riv install -s . -t $(stage_dir)/files/riv >/dev/null
+	@cli/src/bin/riv install -c -s . -t $(stage_dir)/files/riv >/dev/null
 
 image_test:
 	@echo "Image: Running tests (TODO)..."
