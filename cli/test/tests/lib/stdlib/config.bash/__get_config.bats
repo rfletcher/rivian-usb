@@ -10,14 +10,26 @@ load ../../../../helpers/lib_helpers/stdlib_helpers
   assert_json
 }
 
-@test "stdlib: __get_config: >1 arguments" {
-  run __get_config one two
+@test "stdlib: __get_config: >2 arguments" {
+  run __get_config one two three
 
   assert_failure
 }
 
 @test "stdlib: __get_config: selectors are supported" {
   run __get_config object/key1
+
+  assert_success value1
+}
+
+@test "stdlib: __get_config: selectors as defaults, not needed" {
+  run __get_config foo object/key1
+
+  assert_success foo
+}
+
+@test "stdlib: __get_config: selectors as defaults, needed" {
+  run __get_config "" object/key1
 
   assert_success value1
 }

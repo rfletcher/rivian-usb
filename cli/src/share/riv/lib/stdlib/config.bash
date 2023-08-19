@@ -14,12 +14,20 @@ export RIV_CONFIG_JSON=
 #     __get_config               # => { ... }
 #   get config value by selector
 #     __get_config some_selector # => "value at selector"
+#   get config value by selector when value is needed
+#     __get_config "a value" some_selector # => "a value"
 #
 function __get_config() {
   if [[ "$#" == "0" ]]; then
     echo "$RIV_CONFIG_JSON"
   elif [[ "$#" == "1" ]]; then
     __get_config | __json_select "$1"
+  elif [[ "$#" == "2" ]]; then
+    if [[ "$1" != "" ]]; then
+      echo "$1"
+    else
+      __get_config "$2"
+    fi
   else
     return 1
   fi

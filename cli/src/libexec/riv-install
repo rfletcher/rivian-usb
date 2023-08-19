@@ -35,8 +35,8 @@ CONFIGURE_SYSTEM=1
 COPY_FILES=1
 FORCE=
 TARGET=/opt/riv
-SOURCE=https://github.com/rivian-community/rivian-usb
-VERSION=dev
+SOURCE=
+VERSION=
 
 ## Define functions
 
@@ -173,6 +173,9 @@ function main() {
 }
 
 function validate_input() {
+  SOURCE=$(__get_config "$SOURCE" updates/source)
+  VERSION=$(__get_config "$VERSION" updates/version)
+
   if ! __is_url "$SOURCE" && ! test -d "$SOURCE"; then
     __die "Source (-s) must be either a URL or local repo path"
   fi
