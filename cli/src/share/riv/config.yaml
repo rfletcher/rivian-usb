@@ -1,11 +1,7 @@
 # default configuration for `riv`
 
-# default values for command options. these can be overridden with command line
-# options. see `riv help <command>` for descriptions.
-command_defaults:
-  install:
-    dry_run: false
-    force:   false
-    source:  https://github.com/rivian-community/rivian-usb
-    target:  /
-    version: dev
+backup: {}
+
+updates:
+  source:  https://github.com/rivian-community/rivian-usb
+  version: dev
