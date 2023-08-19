@@ -6,6 +6,6 @@
 # stable interface for in-place upgrades across versions. For more flexibility,
 # see `riv help install`.
 #
-# Usage: riv self-udpate
+# Usage: riv self-update
 
 exec riv install -c -t "$_RIV_ROOT"
