@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#
+# Summary: Overwrite installed `riv` files with the latest version
+#
+# This command is effectively an alias, as is `riv self-install`, to provide a
+# stable interface for in-place upgrades across versions. For more flexibility,
+# see `riv help install`.
+#
+# Usage: riv self-udpate
+
+exec riv install -c -t "$_RIV_ROOT"
