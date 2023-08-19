@@ -25,7 +25,7 @@ done
 shopt -s nullglob
 
 if [[ -n "$SUMMARIES" ]]; then
-  echo -e 'See `riv help <command>` to read about a specific subcommand\n'
+  echo -ne 'See `riv help <command>` for details\n\n'
 
   riv-help --commands | sed 's/^/  /'
 else
