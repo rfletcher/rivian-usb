@@ -8,7 +8,7 @@ Requires=
 Type=simple
 Restart=on-failure
 SyslogIdentifier=rivian-usb
-ExecStart=/usr/local/bin/riv service
+ExecStart=/bin/riv service
 
 [Install]
 WantedBy=default.target
