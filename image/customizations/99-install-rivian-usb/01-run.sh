@@ -1,3 +1,12 @@
 #!/bin/bash -e
 
-rsync -rlptP files/riv/ ${ROOTFS_DIR}/opt/riv/
+SOURCE_DIR=files/riv
+TARGET_DIR=/opt/riv
+
+# copy `riv` files into place
+rsync -rlptP ${SOURCE_DIR}/ ${ROOTFS_DIR}/${TARGET_DIR}/
+
+# configure the system
+on_chroot << EOF
+${TARGET_DIR}/bin/riv self-install
+EOF
