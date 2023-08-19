@@ -91,9 +91,11 @@ function main() {
   }
 
   function _enable_service() {
-    __say "Configuring the service..."
+    __say "Installing and starting the background service..."
 
-    __say "(todo)"
+    systemctl daemon-reload
+    systemctl enable rivian-usb
+    systemctl restart rivian-usb
   }
 
   function _fetch() {
