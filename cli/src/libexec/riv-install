@@ -27,7 +27,7 @@ source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 
 ## Check script dependencies
 
-__require_dependencies curl tar rsync systemctl
+__require_dependencies curl tar rsync
 
 ## Set defaults
 
