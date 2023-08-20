@@ -25,6 +25,7 @@ done
 shopt -s nullglob
 
 if [[ -n "$SUMMARIES" ]]; then
+  # shellcheck disable=SC2016
   echo -ne 'See `riv help <command>` for details\n\n'
 
   riv-help --commands | sed 's/^/  /'

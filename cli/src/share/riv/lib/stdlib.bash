@@ -78,7 +78,8 @@ function __error() {
     OPTS="$1"; shift
   fi
 
-  __say $OPTS "Error: $@" 1>&2
+  # shellcheck disable=SC2086
+  __say $OPTS "Error: $*" 1>&2
 
   return 1
 }
@@ -153,6 +154,7 @@ function __if_not_dry_run() {
     while getopts ":i" opt; do
       case $opt in
         i) INDENT=1;;
+        *) return 1;;
       esac
     done
 
@@ -213,9 +215,10 @@ function __reset_indent()    { _RIV_INDENT=0; }
 # Examples:
 #   echo -e 'foo\nbar' | __indent 4 # => "    foo\n    bar"
 #
+# shellcheck disable=SC2120
 function __indent() {
   local WIDTH="${1:-2}"
-  local PREFIX=$(printf ' %.0s' $(seq 1 $WIDTH))
+  local PREFIX=$(printf ' %.0s' $(seq 1 "$WIDTH"))
 
   local OLDIFS="$IFS";  IFS=
   cat - | while read -r LINE; do
@@ -360,7 +363,7 @@ function __justify() {
     local CHARS=$(printf '%s' "$VALUE" | wc -m)
     local UNICODE_ADJUSTMENT=$(( BYTES - CHARS ))
 
-    printf "%${MODIFIER}$(( ${WIDTH} + UNICODE_ADJUSTMENT ))s" "$VALUE"
+    printf "%${MODIFIER}$(( WIDTH + UNICODE_ADJUSTMENT ))s" "$VALUE"
   }
 
   # to figure out display width (unicode support)
@@ -375,8 +378,8 @@ function __justify() {
       local LVALUE=""
       local RVALUE="$VALUE"
     else
-      local LVALUE="$(echo "$VALUE" | cut -c 1-$(( ${VALUE_WIDTH} / 2 )))"
-      local RVALUE="$(echo "$VALUE" | cut -c $(( ${VALUE_WIDTH} / 2 + 1 ))-${VALUE_WIDTH})"
+      local LVALUE="$(echo "$VALUE" | cut -c 1-$(( VALUE_WIDTH / 2 )))"
+      local RVALUE="$(echo "$VALUE" | cut -c $(( VALUE_WIDTH / 2 + 1 ))-"${VALUE_WIDTH}")"
     fi
     local LWIDTH=$(( WIDTH / 2 ))
     local RWIDTH=$(( WIDTH / 2 ))
@@ -619,7 +622,7 @@ function __require_dependencies() {
 #
 function __require_lib() { __require_libs "$@"; }
 function __require_libs() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
   local LIB_DIR="${_RIV_ROOT}/share/riv/lib"
   local MISSING=()
@@ -628,16 +631,17 @@ function __require_libs() {
     local LIB_PATH="${LIB_DIR}/${GLOB%.bash}.bash"
 
     for LIB in $LIB_PATH; do
-      if test -f $LIB; then
-        source $LIB || __exit 1
+      if test -f "$LIB"; then
+        # shellcheck disable=SC1090
+        source "$LIB" || __exit 1
       else
         MISSING=( "${MISSING[@]}" "$LIB" )
       fi
     done
   done
 
-  if [[ "${#MISSING[@]}" > 0 ]]; then
-    __die "This script requires missing libraries: ${MISSING[@]}"
+  if [[ ${#MISSING[@]} -gt 0 ]]; then
+    __die "This script requires missing libraries: ${MISSING[*]}"
   fi
 
   return 0
@@ -816,7 +820,7 @@ function __urldecode() {
 function __wait_for() {
   [[ "$*" == "" ]] && return 1
 
-  local CMD="$1"
+  local COMMAND="$1"
   local SLEEP="${2:-5}"
   local MESSAGE="${3:-.}"
   local TIMEOUT="$4"
@@ -825,7 +829,7 @@ function __wait_for() {
 
   [[ "$MESSAGE" != "." ]] && __say "$MESSAGE"
 
-  while ! eval "$CMD" >/dev/null; do
+  while ! eval "$COMMAND" >/dev/null; do
     if [[ "$TIMEOUT" != "" ]]; then
       local NOW="$(date +%s)"
       local ELAPSED="$((NOW - START))"

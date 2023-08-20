@@ -47,6 +47,7 @@ else
 fi
 
 function collect_documentation() {
+  # shellcheck disable=SC2016
   $(type -p gawk awk | head -1) '
     /^Summary:/ {
       summary = substr($0, 10)
@@ -119,11 +120,12 @@ function help() {
 }
 
 function print_help() {
-  local command="$1"
-  local summary usage help
+  local COMMAND="$1"
+  local SUMMARY USAGE HELP
+
   eval "$(documentation_for "$COMMAND")"
 
-  if [ -n "$USAGE" -o -n "$SUMMARY" ]; then
+  if [[ -n "$USAGE" ]] || [[ -n "$SUMMARY" ]]; then
     if [ -n "$SUMMARY" ]; then
       echo "$SUMMARY"
       echo
@@ -161,6 +163,7 @@ function print_summary() {
   local COMMAND="$1"
   local LENGTH="$2"
   local INDENT SUMMARY USAGE HELP
+
   eval "$(documentation_for "$COMMAND")"
 
   if [ "$ONLY_COMMANDS" == "" ]; then
@@ -177,7 +180,9 @@ function print_summary() {
 function print_usage() {
   local COMMAND="$1"
   local SUMMARY USAGE HELP
+
   eval "$(documentation_for "$COMMAND")"
+
   [ -z "$USAGE" ] || echo "$USAGE"
 }
 
@@ -200,6 +205,7 @@ if [[ -z "$1" ]] || [[ "$1" == "riv" ]]; then
     echo "Some useful commands are:"
   fi
 
+  # shellcheck disable=SC2086
   print_summaries $USEFUL_COMMANDS
 
   if [[ "$ONLY_COMMANDS" == "" ]]; then

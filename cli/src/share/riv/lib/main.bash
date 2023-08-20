@@ -48,6 +48,7 @@ function __main() {
       fi
     done
     shift $((OPTIND-1))
+    unset RIV_OPTIONS
 
     # save remaining arguments
     ARGS=( "$@" )
@@ -72,6 +73,7 @@ function __quit() {
 
 # handle ^C, etc.
 for SIGNAL in INT TERM; do
+  # shellcheck disable=SC2064
   trap "__quit $SIGNAL" "$SIGNAL"
 done
 

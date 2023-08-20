@@ -18,8 +18,8 @@
 #     riv install
 #   Install a specific release:
 #     riv install 0.0.1
-#   Copy files into tmp/, and skip system configuration:
-#     riv install -c -t tmp/
+#   Copy files into ./tmp, and skip system configuration:
+#     riv install -c -t ./tmp
 #   Configure the system to use the copy of `riv` already installed in /foo
 #     riv install -i -t /foo
 
@@ -42,7 +42,7 @@ VERSION=
 
 function handle_options() {
   case $1 in
-    -) RIV_OPTIONS=":cfis:t:";;
+    -) export RIV_OPTIONS=":cfis:t:";;
     c) CONFIGURE_SYSTEM=;;
     f) FORCE=1;;
     i) COPY_FILES=;;
@@ -131,7 +131,7 @@ function main() {
 
     local SOURCE_DIR FILE
 
-    pushd "$TARGET" >/dev/null
+    pushd "$TARGET" >/dev/null || return 1
     for SOURCE_DIR in bin etc; do
       if __is_raspberry_pi; then
         riv util-remount "/${SOURCE_DIR}" || return 1
@@ -140,12 +140,11 @@ function main() {
       find "$SOURCE_DIR" -type d -exec mkdir -p "/{}" \;
 
       while read -r FILE; do
-        ! test -e "$FILE" || rm -rf "/$FILE"
-        ln -fs $(__abspath "${TARGET}/${FILE}") "/$FILE" 
+        ! test -e "$FILE" || rm -rf "/${FILE:?}"
+        ln -fs "$(__abspath "${TARGET}/${FILE}")" "/$FILE"
       done < <(find "$SOURCE_DIR" -type f)
     done
-    popd >/dev/null ||
-    return 1
+    popd >/dev/null || return 1
   }
 
   function _prepare() {

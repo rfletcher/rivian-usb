@@ -58,9 +58,11 @@ function __load_config() {
 
   local SUPPLEMENTAL_CONFIG="{}"
   if [[ -e "$SUPPLEMENTAL_CONFIG_PATH" ]]; then
+    # shellcheck disable=SC2002
     SUPPLEMENTAL_CONFIG=$(cat "$SUPPLEMENTAL_CONFIG_PATH" | __yaml_to_json)
   fi
 
+  # shellcheck disable=SC2002 disable=SC2016
   RIV_CONFIG_JSON=$(
     cat "$CONFIG_PATH" | __yaml_to_json |
     __jq --sort-keys --compact-output --argjson supplemental_config "$SUPPLEMENTAL_CONFIG" '

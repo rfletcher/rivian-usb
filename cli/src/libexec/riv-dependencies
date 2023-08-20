@@ -45,7 +45,7 @@ function main() {
 
 function handle_options() {
   case "$1" in
-    -) RIV_OPTIONS=":bp";;
+    -) export RIV_OPTIONS=":bp";;
     b) BINARY_ONLY=1;;
     p) PACKAGE_ONLY=1;;
   esac

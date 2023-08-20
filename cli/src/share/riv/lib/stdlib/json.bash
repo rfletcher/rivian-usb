@@ -45,6 +45,7 @@ function __is_json() {
 #   echo '{}' | __jq .
 #
 function __jq() {
+  # shellcheck disable=SC2124
   local LAST="${@: -1:1}"
 
   set -- "${@:1:$(($#-1))}" -L "${_RIV_ROOT}/share/riv/lib" "include \"stdlib\"; ${LAST}"
@@ -64,7 +65,7 @@ function __jq() {
 #   __json_merge '{ x: 1 }' '{ y: 2 }' # => { x: 1, y: 2 }
 #
 function __json_merge() {
-  [[ "$@" == "" ]] && return 1
+  [[ "$*" == "" ]] && return 1
 
   local ARR="$1"; shift
 
@@ -110,6 +111,7 @@ function __json_select() {
     while getopts ":j" opt; do
       case $opt in
         j) RAW_OPT="";;
+        *) return 1;;
       esac
     done
 
@@ -121,6 +123,7 @@ function __json_select() {
 
   _parse_options "$@"
 
+  # shellcheck disable=SC2016
   cat - | __jq $RAW_OPT --arg path "$PATH_SELECTOR" --arg default "$DEFAULT" '
     def __select_and_coerce( path ):
       __select($path) | if . == null then ($default | __coerce) else . end
