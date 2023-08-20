@@ -6,7 +6,7 @@
 #
 # Options:
 #   -c Skip system configuration. No systemd service, etc.
-#   -f Force reinstallation
+#   -f Force reinstallation/configuration
 #   -i Skip file installation
 #   -s <path|url>: Install from this source repository. If this is a local
 #      path, any specified version argument is ignored.
@@ -127,7 +127,11 @@ function main() {
   }
 
   function _install() {
-    __say "Installing onto the system..."
+    __say "Installing files onto the system..."
+
+    if ! __is_raspberry_pi && [[ "$FORCE" != "1" ]]; then
+      __die "This doesn't look like a Pi-like system. Add -f configure anyway."
+    fi
 
     local SOURCE_DIR FILE
 
