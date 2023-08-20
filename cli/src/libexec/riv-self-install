@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# Summary: Install system rivian-usb configuration (background service, etc.)
+# Summary: Configure the system for rivian-usb (background service, mounts, etc.)
 #
-# This command is effectively an alias, with `riv self-update`, to provide a
+# This command is effectively an alias, as is `riv self-update`, to provide a
 # stable interface for in-place upgrades across versions. For more flexibility,
 # see `riv help install`.
 #
