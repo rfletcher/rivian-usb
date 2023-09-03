@@ -64,14 +64,14 @@ image_clean:
 image_configure:
 	@echo "Image: Configuring image..."
 	@cp image/config $(image_dir)/config
-  # skip default pi-gen image generation
+	# skip default pi-gen image generation
 	@touch $(image_dir)/stage{0..2}/SKIP_IMAGES
 	@rm -rf $(image_dir)/stage{3..5}
-  # install riv image customizations
+	# install riv image customizations
 	@rsync -a --delete image/customizations/ $(image_dir)/stage3/
 	@cp $(image_dir)/stage{2,3}/prerun.sh
 	@cli/src/bin/riv dependencies -p > $(stage_dir)/00-packages
-  # copy `riv` into the image
+	# copy `riv` into the image
 	@mkdir -p $(stage_dir)/files/riv
 	@cli/src/bin/riv install -c -s . -t $(stage_dir)/files/riv >/dev/null
 
