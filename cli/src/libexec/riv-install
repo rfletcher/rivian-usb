@@ -16,12 +16,12 @@
 # Examples:
 #   Install the latest stable version and configure the system:
 #     riv install
-#   Install a specific release:
+#   Do the same, but for a specific release:
 #     riv install 0.0.1
 #   Copy files into ./tmp, and skip system configuration:
 #     riv install -c -t ./tmp
-#   Configure the system to use the copy of `riv` already installed in /foo
-#     riv install -i -t /foo
+#   Configure the system to use the copy of `riv` already installed in /tmp
+#     riv install -i -t /tmp
 
 source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 

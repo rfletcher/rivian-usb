@@ -5,13 +5,18 @@
 #
 # 1. `source` this script in yours
 # 2. Define a `main` function
-#    2a) (Optionally) define a `quit` function, to handle SIGINT, etc.
-# 3. Your `main` will be called automatically (after `handle_options`,
+# 3. (Optionally) Define any of these functions, as needed:
+#    - `quit`, to handle SIGINT, SIGTERM and shut down cleanly
+#    - `reload`, to handle SIGHUP and reload configuration
+#    - `handle_arguments`
+#    - `handle_options`
+#    - `validate_input`
+# 4. `main` will be called automatically (after `handle_options`,
 #    `handle_arguments` and `validate_input`, if they're defined).
 
 source "${_RIV_ROOT}/share/riv/lib/stdlib.bash" || exit 1
 
-## Set defaults 
+## Set defaults
 
 _RIV_ARGS=( "$@" )
 _RIV_MAIN_INITIALIZED=
