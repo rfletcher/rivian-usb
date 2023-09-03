@@ -39,11 +39,11 @@ function __get_config() {
 # Usage: __load_config
 #
 # Examples:
-#   __load_config # => {...}
+#   __load_config
 #
 function __load_config() {
   [[ "$#" == "0" ]] || return 1
-  [[ "$RIV_CONFIG_JSON" == "" ]] || return
+  [[ "$RIV_CONFIG_JSON" == "" ]] || return 0
 
   local CONFIG_PATH=
   local SUPPLEMENTAL_CONFIG_PATH="${_RIV_ROOT}/etc/riv/config.yaml"
@@ -69,4 +69,20 @@ function __load_config() {
       . * $supplemental_config
     '
   )
+}
+
+##
+# Reload configuration from disk
+#
+# Usage: __reload_config
+#
+# Examples:
+#   __reload_config
+#
+function __reload_config() {
+  [[ "$#" == "0" ]] || return 1
+
+  RIV_CONFIG_JSON=""
+
+  __load_config
 }

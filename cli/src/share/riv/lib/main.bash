@@ -68,6 +68,10 @@ function __main() {
   __function_exists main             && main
 }
 
+function __reload() {
+  __function_exists reload && reload
+}
+
 function __quit() {
   __function_exists quit && quit "$1"
 
@@ -81,6 +85,9 @@ for SIGNAL in INT TERM; do
   # shellcheck disable=SC2064
   trap "__quit $SIGNAL" "$SIGNAL"
 done
+
+# reload on SIGHUP
+trap __reload HUP
 
 # run main()
 trap __main EXIT

@@ -15,8 +15,7 @@ function main() {
     __say "Looping..."
 
     # sleep in the background so it doesn't block SIGTERM
-    sleep 60 &
-    wait $!
+    sleep 60 & wait $!
   done
 }
 
