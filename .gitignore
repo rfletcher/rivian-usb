@@ -1,3 +1,4 @@
 .nova
 
 cli/test/tests/**/*.tmpl.bats
+image/build/

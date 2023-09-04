@@ -54,7 +54,12 @@ image: image_clean image_configure image_build image_test
 
 image_build:
 	@echo "Image: Building OS Image"
+	# build
 	@cd $(image_dir) && ./build-docker.sh
+	# copy artifacts
+	@mkdir -p image/build/
+	@rsync -avP image/pi-gen/deploy/ image/build/
+	@rm -rf image/pi-gen/deploy/
 
 image_clean:
 	@echo "Image: Cleaning up..."
