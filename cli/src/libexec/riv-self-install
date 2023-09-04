@@ -8,4 +8,4 @@
 #
 # Usage: riv self-install
 
-exec riv install -i -t "$_RIV_ROOT"
+exec riv install -i -f -t "$_RIV_ROOT"
