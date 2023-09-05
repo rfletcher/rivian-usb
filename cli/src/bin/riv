@@ -24,6 +24,7 @@ LIBEXEC_PATH="$(abs_dirname "$(abs_dirname "$0")/../libexec/_")"
 COMMAND="$1"
 
 export _RIV_COMMAND="$COMMAND"
+export _RIV_CONFIG=
 export _RIV_INDENT="${_RIV_INDENT:-0}"
 export _RIV_ROOT="$(abs_dirname "$LIBEXEC_PATH")"
 export _RIV_SHARE="${_RIV_ROOT}/share"

@@ -2,8 +2,6 @@
 # Library of config-related bash functions
 #
 
-export RIV_CONFIG_JSON=
-
 ##
 # Search the configuration for an object by type and id/name/alias
 #
@@ -19,7 +17,7 @@ export RIV_CONFIG_JSON=
 #
 function __get_config() {
   if [[ "$#" == "0" ]]; then
-    echo "$RIV_CONFIG_JSON"
+    echo "$_RIV_CONFIG"
   elif [[ "$#" == "1" ]]; then
     __get_config | __json_select "$1"
   elif [[ "$#" == "2" ]]; then
@@ -43,7 +41,7 @@ function __get_config() {
 #
 function __load_config() {
   [[ "$#" == "0" ]] || return 1
-  [[ "$RIV_CONFIG_JSON" == "" ]] || return 0
+  [[ "$_RIV_CONFIG" == "" ]] || return 0
 
   local CONFIG_PATH=
   local SUPPLEMENTAL_CONFIG_PATH="${_RIV_ROOT}/etc/riv/config.yaml"
@@ -63,7 +61,7 @@ function __load_config() {
   fi
 
   # shellcheck disable=SC2002 disable=SC2016
-  RIV_CONFIG_JSON=$(
+  _RIV_CONFIG=$(
     cat "$CONFIG_PATH" | __yaml_to_json |
     __jq --sort-keys --compact-output --argjson supplemental_config "$SUPPLEMENTAL_CONFIG" '
       . * $supplemental_config
@@ -82,7 +80,7 @@ function __load_config() {
 function __reload_config() {
   [[ "$#" == "0" ]] || return 1
 
-  RIV_CONFIG_JSON=""
+  _RIV_CONFIG=""
 
   __load_config
 }

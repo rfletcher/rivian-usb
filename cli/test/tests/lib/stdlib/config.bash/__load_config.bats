@@ -4,7 +4,7 @@ load ../../../../helpers/all_helpers
 load ../../../../helpers/lib_helpers/stdlib_helpers
 
 @test "stdlib: __load_config: no arguments" {
-  export RIV_CONFIG_JSON=
+  export _RIV_CONFIG=
 
   run __load_config
 
@@ -13,7 +13,7 @@ load ../../../../helpers/lib_helpers/stdlib_helpers
 }
 
 @test "stdlib: __load_config: >0 arguments" {
-  export RIV_CONFIG_JSON=
+  export _RIV_CONFIG=
 
   run __load_config one
 
@@ -21,7 +21,7 @@ load ../../../../helpers/lib_helpers/stdlib_helpers
 }
 
 @test "stdlib: __load_config: non-existant supplemental path" {
-  export RIV_CONFIG_JSON=
+  export _RIV_CONFIG=
   export RIV_CONFIG=/path/that/does/not/exist
 
   run __load_config
@@ -31,7 +31,7 @@ load ../../../../helpers/lib_helpers/stdlib_helpers
 }
 
 @test "stdlib: __load_config: config is cached" {
-  export RIV_CONFIG_JSON="x"
+  export _RIV_CONFIG="x"
 
   run __get_config
 

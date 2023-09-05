@@ -17,7 +17,7 @@ load ../../../../helpers/lib_helpers/stdlib_helpers
 }
 
 @test "stdlib: __reload_config: cache is overwritten" {
-  export RIV_CONFIG_JSON="x"
+  export _RIV_CONFIG="x"
 
   _reload_and_get() {
     __reload_config
@@ -27,5 +27,5 @@ load ../../../../helpers/lib_helpers/stdlib_helpers
   run _reload_and_get
 
   assert_success
-  refute_output "$RIV_CONFIG_JSON"
+  refute_output "$_RIV_CONFIG"
 }
