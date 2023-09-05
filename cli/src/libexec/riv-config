@@ -56,7 +56,3 @@ function handle_options() {
     f) FORMAT="$2";;
   esac
 }
-
-function validate_input() {
-  true
-}
