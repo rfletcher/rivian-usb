@@ -10,10 +10,9 @@
 
 set -e
 
-VERSION=${_RIV_VERSION:-dev}
-
 if [[ "$1" == "-l" ]]; then
-  echo "Rivian-USB ${VERSION}"
+  echo -n "Rivian-USB "
+  cat "${_RIV_SHARE}/riv/version.txt"
 else
-  echo "$VERSION"
+  head -1 "${_RIV_SHARE}/riv/version.txt"
 fi
