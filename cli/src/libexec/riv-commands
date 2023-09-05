@@ -15,8 +15,8 @@ set -e
 
 SUMMARIES=1
 
-for arg in "$@"; do
-  if [[ "$arg" == "-s" ]]; then
+for ARG in "$@"; do
+  if [[ "$ARG" == "-s" ]]; then
     SUMMARIES=
     shift
   fi

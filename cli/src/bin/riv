@@ -7,31 +7,31 @@ function resolve_link() {
 }
 
 function abs_dirname() {
-  local cwd="$(pwd)"
-  local path="$1"
+  local ORIG_PWD="$(pwd)"
+  local MY_PATH="$1"
 
-  while [ -n "$path" ]; do
-    cd "${path%/*}"
-    local name="${path##*/}"
-    path="$(resolve_link "$name" || true)"
+  while [ -n "$MY_PATH" ]; do
+    cd "${MY_PATH%/*}"
+    local NAME="${MY_PATH##*/}"
+    MY_PATH="$(resolve_link "$NAME" || true)"
   done
 
   pwd
-  cd "$cwd"
+  cd "$ORIG_PWD"
 }
 
-libexec_path="$(abs_dirname "$(abs_dirname "$0")/../libexec/foo")"
-command="$1"
+LIBEXEC_PATH="$(abs_dirname "$(abs_dirname "$0")/../libexec/_")"
+COMMAND="$1"
 
 export _RIV_VERSION=dev
-export _RIV_COMMAND="$command"
+export _RIV_COMMAND="$COMMAND"
 export _RIV_INDENT="${_RIV_INDENT:-0}"
-export _RIV_ROOT="$(abs_dirname "$libexec_path")"
+export _RIV_ROOT="$(abs_dirname "$LIBEXEC_PATH")"
 export _RIV_SHARE="${_RIV_ROOT}/share"
 
-export PATH="${_RIV_ROOT}/bin:${libexec_path}:$PATH"
+export PATH="${_RIV_ROOT}/bin:${LIBEXEC_PATH}:$PATH"
 
-case "$command" in
+case "$COMMAND" in
 "" | "-h" | "--help" )
   exec riv-help
   ;;
@@ -39,13 +39,13 @@ case "$command" in
   exec riv-version
   ;;
 * )
-  command_path="$(command -v "riv-$command" || true)"
-  if [ ! -x "$command_path" ]; then
-    echo "riv: no such command \`$command'" >&2
+  COMMAND_PATH="$(command -v "riv-$COMMAND" || true)"
+  if [ ! -x "$COMMAND_PATH" ]; then
+    echo "riv: no such command \`$COMMAND'" >&2
     exit 1
   fi
 
   shift
-  exec "$command_path" "$@"
+  exec "$COMMAND_PATH" "$@"
   ;;
 esac

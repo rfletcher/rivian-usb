@@ -151,8 +151,8 @@ function __if_not_dry_run() {
   function _parse_options() {
     local OPTIND=0
 
-    while getopts ":i" opt; do
-      case $opt in
+    while getopts ":i" OPT; do
+      case $OPT in
         i) INDENT=1;;
         *) return 1;;
       esac

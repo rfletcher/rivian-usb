@@ -108,8 +108,8 @@ function __json_select() {
   function _parse_options() {
     local OPTIND=0
 
-    while getopts ":j" opt; do
-      case $opt in
+    while getopts ":j" OPT; do
+      case $OPT in
         j) RAW_OPT="";;
         *) return 1;;
       esac
