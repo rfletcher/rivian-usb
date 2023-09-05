@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Summary: Install/upgrade `riv`
+# Summary: Install/upgrade rivian-usb
 #
 # Usage: riv install [opts] [version]
 #
