@@ -272,10 +272,10 @@ function __is_readonly_path() {
 #
 function __is_raspberry_pi() { __is_sbc "$@"; }
 function __is_sbc() {
-  local MODEL=/sys/firmware/devicetree/base/model
+  local MODEL_FILE=/sys/firmware/devicetree/base/model
 
-  test -f "$MODEL" &&
-  grep -qE "raspbery pi|rock pi|radxa zero" "$MODEL"
+  test -f "$MODEL_FILE" &&
+  grep -iqE "raspbery pi|rock pi|radxa zero" "$MODEL_FILE"
 }
 
 ##
