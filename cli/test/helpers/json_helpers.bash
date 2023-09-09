@@ -1,7 +1,7 @@
 ##
 # Test whether a key is present in a JSON object
 #
-__json_has_key() {
+function __json_has_key() {
   local KEY="$1"
   local JSON="${2:-$output}"
 
@@ -19,7 +19,7 @@ __json_has_key() {
 #   assert_json # no input? test $output
 #   assert_json '[1]'
 #
-assert_json() {
+function assert_json() {
   local json
 
   if [ $# -eq 0 ]; then
@@ -39,7 +39,7 @@ assert_json() {
 # Usage:
 #   assert_json_equal '[1]' '[ 1 ]'
 #
-assert_json_equal() {
+function assert_json_equal() {
   local EXPECTED="$1"
   local ACTUAL="${2:-$output}"
 
@@ -59,7 +59,7 @@ assert_json_equal() {
 #   assert_success_json # no input? test $output
 #   assert_success_json '[1]'
 #
-assert_success_json() {
+function assert_success_json() {
   assert_success
   assert_json_equal "$1"
 }
@@ -71,7 +71,7 @@ assert_success_json() {
 #   assert_failure_json # no input? test $output
 #   assert_failure_json '[1]'
 #
-assert_failure_json() {
+function assert_failure_json() {
   assert_failure
   assert_json_equal "$1"
 }
@@ -82,7 +82,7 @@ assert_failure_json() {
 # Usage:
 #   assert_json_key foo '{ "foo": 1 }'
 #
-assert_json_key() {
+function assert_json_key() {
   local KEY="$1"
   local VALUE="$2"
   local JSON="${3:-$output}"
@@ -102,7 +102,7 @@ assert_json_key() {
 # Usage:
 #   assert_json_key foo '{ "foo": 1 }'
 #
-refute_json_key() {
+function refute_json_key() {
   local KEY="$1"
   local JSON="${2:-$output}"
 

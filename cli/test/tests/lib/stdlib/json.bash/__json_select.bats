@@ -3,16 +3,17 @@
 load ../../../../helpers/all_helpers
 load ../../../../helpers/lib_helpers/stdlib_helpers
 
-_setup() {
-  __filter_stub_array() {
+function _setup() {
+  function __filter_stub_array() {
     echo '[{"foo":"bar"},{"foo":"baz"}]' | __json_select "$@"
   }
-  __filter_stub_object() {
+  function __filter_stub_object() {
     echo '{"foo": { "bar": "baz", "bool": false } }' | __json_select "$@"
   }
 }
 
-_teardown() {
+function _teardown() {
+  unset __filter_stub_array
   unset __filter_stub_object
 }
 

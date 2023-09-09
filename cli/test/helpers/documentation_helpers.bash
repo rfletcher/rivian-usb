@@ -4,7 +4,7 @@
 # Usage:
 #   assert_documentation <command>
 #
-assert_documentation() {
+function assert_documentation() {
   assert_sufficient_help_output "$1"
   assert_command_summary "$1"
 }
@@ -15,7 +15,7 @@ assert_documentation() {
 # Usage:
 #   assert_deprecated <command>
 #
-assert_deprecated() {
+function assert_deprecated() {
   local COMMAND="$1"
 
   run riv help "$COMMAND"
@@ -32,7 +32,7 @@ assert_deprecated() {
 # Usage:
 #   assert_command_summary <command>
 #
-assert_command_summary() {
+function assert_command_summary() {
   local COMMAND="$1"
 
   function _is_exempt() {
@@ -59,7 +59,7 @@ assert_command_summary() {
 # Usage:
 #   assert_sufficient_help_output <command>
 #
-assert_sufficient_help_output() {
+function assert_sufficient_help_output() {
   local COMMAND="$1"
 
   run riv help "$COMMAND"

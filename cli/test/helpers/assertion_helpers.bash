@@ -4,7 +4,7 @@
 # Usage:
 #   assert [ ! -d "${RIV_ROOT}/target" ]
 #
-assert() {
+function assert() {
   echo "$@"
 
   if ! "$@"; then
@@ -18,7 +18,7 @@ assert() {
 # Usage:
 #   assert_equal "foo" "bar"
 #
-assert_equal() {
+function assert_equal() {
   if [[ "$1" != "$2" ]]; then
     { echo "expected: $1"
       echo "actual:   $2"
@@ -33,7 +33,7 @@ assert_equal() {
 #   assert_error
 #   assert_error '/some error/'
 #
-assert_error() {
+function assert_error() {
   if [[ "$1" != "" ]]; then
     assert_line "$1"
   fi
@@ -50,7 +50,7 @@ assert_error() {
 #   assert_failure
 #   assert_failure "some output"
 #
-assert_failure() {
+function assert_failure() {
   if [ "$#" -gt 0 ]; then
     assert_output "$1"
   fi
@@ -71,7 +71,7 @@ assert_failure() {
 #   assert_line 0 "/^foo/" # line 0 matches /^foo/
 #   assert_line 3          # line 3 exists
 #
-assert_line() {
+function assert_line() {
   if [ "$1" -ge 0 ] 2>/dev/null; then
     if [ "$#" -gt 1 ]; then
       assert_match "$2" "${lines[$1]}"
@@ -97,7 +97,7 @@ assert_line() {
 #   assert_match "foo" "foo"  # => true
 #   assert_match "/^f/" "foo" # => true
 #
-assert_match() {
+function assert_match() {
   if ! is_match "$1" "$2"; then
     { echo "expected: ${1:-(empty)}"
       echo "actual:   ${2:-(empty)}"
@@ -113,7 +113,7 @@ assert_match() {
 #   assert_output "/^foo/"
 #   echo -e "multiple\nlines" | assert_output
 #
-assert_output() {
+function assert_output() {
   local expected
   if [ $# -eq 0 ]; then
     expected="$(cat -)"
@@ -131,7 +131,7 @@ assert_output() {
 #   assert_success
 #   assert_success "some output"
 #
-assert_success() {
+function assert_success() {
   if [ "$#" -gt 0 ]; then
     assert_output "$1"
   fi
@@ -148,7 +148,7 @@ assert_success() {
 #   flunk "1 is not 2"
 #   echo -e "multiple\nlines" | flunk
 #
-flunk() {
+function flunk() {
   if [ "$#" -eq 0 ]; then
     cat -
   else
@@ -164,7 +164,7 @@ flunk() {
 # Usage:
 #   refute_equal "foo" "bar"
 #
-refute_equal() {
+function refute_equal() {
   if [[ "$1" == "$2" ]]; then
     flunk "expected \"$1\" to differ from \"$2\""
   fi
@@ -178,7 +178,7 @@ refute_equal() {
 #   refute_line "foo"
 #   refute_line 5
 #
-refute_line() {
+function refute_line() {
   if [ "$1" -ge 0 ] 2>/dev/null; then
     local num_lines="${#lines[@]}"
     if [ "$1" -lt "$num_lines" ]; then
@@ -202,7 +202,7 @@ refute_line() {
 #   refute_output "/^foo/"
 #   echo -e "multiple\nlines" | refute_output /line/ # => fail
 #
-refute_output() {
+function refute_output() {
   local expected
   if [ $# -eq 0 ]; then
     expected="$(cat -)"
@@ -221,7 +221,7 @@ refute_output() {
 #   is_match "abc" "abc"
 #   is_match "/^a/" "abc"
 #
-is_match() {
+function is_match() {
   local A="$1"
   local B="$2"
 

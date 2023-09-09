@@ -20,8 +20,8 @@ function abs_dirname() {
   cd "$ORIG_PWD"
 }
 
-LIBEXEC_PATH="$(abs_dirname "$(abs_dirname "$0")/../libexec/_")"
 COMMAND="$1"
+LIBEXEC_PATH="$(abs_dirname "$(abs_dirname "$0")/../libexec/_")"
 
 export _RIV_COMMAND="$COMMAND"
 export _RIV_CONFIG=

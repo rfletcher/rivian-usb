@@ -19,7 +19,7 @@ load ../../../../helpers/lib_helpers/stdlib_helpers
 @test "stdlib: __reload_config: cache is overwritten" {
   export _RIV_CONFIG="x"
 
-  _reload_and_get() {
+  function _reload_and_get() {
     __reload_config
     __get_config
   }

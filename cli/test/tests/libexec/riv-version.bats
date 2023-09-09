@@ -27,7 +27,7 @@ load ../../helpers/all_helpers
   assert_version_output
 }
 
-assert_version_output() {
+function assert_version_output() {
   assert_success
 
   assert_line 0 '/^[^\s]+$/'

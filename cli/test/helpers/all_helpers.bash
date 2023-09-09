@@ -7,15 +7,15 @@ export HELPERS="
 
 export RIV_ROOT="${BATS_CWD}"
 
-setup() {
+function setup() {
   _run_setup_or_teardown setup
 }
 
-teardown() {
+function teardown() {
   _run_setup_or_teardown teardown
 }
 
-run_stdin() {
+function run_stdin() {
   local input="$1"; shift
   local e E T oldIFS
   [[ ! "$-" =~ e ]] || e=1
@@ -34,7 +34,7 @@ run_stdin() {
   IFS=$oldIFS
 }
 
-_run_setup_or_teardown() {
+function _run_setup_or_teardown() {
   local TYPE="$1"
 
   _run_if_exists() {

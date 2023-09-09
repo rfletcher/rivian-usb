@@ -9,7 +9,7 @@
 #
 # Examples:
 #   get entire riv configuration
-#     __get_config               # => { ... }
+#     __get_config # => { ... }
 #   get config value by selector
 #     __get_config some_selector # => "value at selector"
 #   get config value by selector when value is needed

@@ -3,8 +3,14 @@
 load ../../../helpers/all_helpers
 load ../../../helpers/lib_helpers/stdlib_helpers
 
-findmnt() {
-  echo -n "/"
+function _setup() {
+  function findmnt() {
+    echo -n "/"
+  }
+}
+
+function _teardown() {
+  unset findmnt
 }
 
 @test "stdlib: __find_mount: without arguments" {

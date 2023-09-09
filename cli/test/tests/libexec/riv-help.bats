@@ -40,7 +40,7 @@ load ../../helpers/all_helpers
   assert_help_output
 }
 
-assert_help_output() {
+function assert_help_output() {
   assert_success
 
   assert_line 1 'Usage: riv <command> [<args...>]'
@@ -48,7 +48,7 @@ assert_help_output() {
   assert_line '/See `riv help <command>`/'
 }
 
-assert_usage_output() {
+function assert_usage_output() {
   assert_line 0 '/^Usage: /'
   refute_line 1
 }

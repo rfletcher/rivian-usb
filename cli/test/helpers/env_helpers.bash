@@ -17,7 +17,7 @@ if [[ "$RIV_BIN" == "" ]]; then
   export PATH="${RIV_BIN}:${PATH}"
 fi
 
-path_without() {
+function path_without() {
   local exe="$1"
   local path="${PATH}:"
   local tmp_dir=$(mktemp -dt bats.XXXX)

@@ -3,13 +3,13 @@
 load ../../../helpers/all_helpers
 load ../../../helpers/lib_helpers/stdlib_helpers
 
-_setup() {
-  some_dependency() {
+function _setup() {
+  function some_dependency() {
     true
   }
 }
 
-_teardown() {
+function _teardown() {
   unset some_dependency
 }
 

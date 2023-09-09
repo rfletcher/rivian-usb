@@ -3,12 +3,12 @@
 load ../../../helpers/all_helpers
 load ../../../helpers/lib_helpers/stdlib_helpers
 
-_setup() {
+function _setup() {
   local  WAIT_START=$(date +%s)
   export WAIT_STOP=$((WAIT_START + 3))
 }
 
-_teardown() {
+function _teardown() {
   unset WAIT_STOP
 }
 
@@ -42,12 +42,12 @@ _teardown() {
   assert_failure
 }
 
-wait_callback() {
+function wait_callback() {
   local NOW=$(date +%s)
 
   [[ "$NOW" -ge "$WAIT_STOP" ]]
 }
 
-wait_noop_callback() {
+function wait_noop_callback() {
   true
 }

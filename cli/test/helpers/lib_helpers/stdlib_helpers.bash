@@ -1,5 +1,5 @@
 HELPERS="${HELPERS} stdlib"
 
-_stdlib_setup() {
+function _stdlib_setup() {
   . ${RIV_SHARE}/lib/stdlib.bash
 }

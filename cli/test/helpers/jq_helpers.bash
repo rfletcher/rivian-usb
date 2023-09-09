@@ -1,15 +1,15 @@
 HELPERS="${HELPERS} jq"
 
-_jq_setup() {
+function _jq_setup() {
   # stdlib.bash defines __jq()
   . ${RIV_SHARE}/lib/stdlib.bash
 }
 
-run_jq() {
+function run_jq() {
   run_jq_stdin "" "$@"
 }
 
-run_jq_stdin() {
+function run_jq_stdin() {
   local STDIN="$1"; shift;
 
   if [[ "$STDIN" == "" ]]; then
