@@ -42,31 +42,32 @@ function __get_config() {
 function __load_config() {
   [[ "$_RIV_CONFIG" == "" ]] || return 0
 
-  local CONFIG_PATH=
-  local SUPPLEMENTAL_CONFIG_PATH="${_RIV_ROOT}/etc/riv/config.yaml"
+  local CONFIG_PATHS=(
+    "${_RIV_ROOT}/share/riv/config.yaml"
+    /etc/riv/config.yaml
+    "${HOME}/.config/riv/config.yaml"
+  )
 
   # shellcheck disable=SC2153
-  if [[ "$RIV_CONFIG" == "" ]]; then
-    CONFIG_PATH="${_RIV_ROOT}/share/riv/config.yaml"
-  else
-    CONFIG_PATH="$RIV_CONFIG"
+  if [[ "$RIV_CONFIG" != "" ]]; then
+    [[ -r "$RIV_CONFIG" ]] || __die "Could not read riv config: ${CONFIG_PATH}"
+
+    CONFIG_PATHS=( "$RIV_CONFIG" )
   fi
 
-  [[ -r "$CONFIG_PATH" ]] || __die "Could not read riv config: ${CONFIG_PATH}"
+  _RIV_CONFIG="{}"
 
-  local SUPPLEMENTAL_CONFIG="{}"
-  if [[ -e "$SUPPLEMENTAL_CONFIG_PATH" ]]; then
-    # shellcheck disable=SC2002
-    SUPPLEMENTAL_CONFIG=$(cat "$SUPPLEMENTAL_CONFIG_PATH" | __yaml_to_json)
-  fi
-
-  # shellcheck disable=SC2002 disable=SC2016
-  _RIV_CONFIG=$(
-    cat "$CONFIG_PATH" | __yaml_to_json |
-    __jq --sort-keys --compact-output --argjson supplemental_config "$SUPPLEMENTAL_CONFIG" '
-      . * $supplemental_config
-    '
-  )
+  for CONFIG_PATH in "${CONFIG_PATHS[@]}"; do
+    if test -r "$CONFIG_PATH"; then
+      # shellcheck disable=SC2002 disable=SC2016
+      _RIV_CONFIG=$(
+        cat "$CONFIG_PATH" | __yaml_to_json |
+        jq --sort-keys --compact-output --argjson base_config "$_RIV_CONFIG" '
+          $base_config * .
+        '
+      )
+    fi
+  done
 }
 
 ##
