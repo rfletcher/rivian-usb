@@ -111,7 +111,7 @@ function main() {
       __say "Downloading ${URL}..."
 
       pushd "$TMPDIR" >/dev/null &&
-      curl -s -L "$URL" > "$FILE" &&
+      curl --fail --silent --location "$URL" > "$FILE" &&
       tar zxf "$FILE" --strip-components=1 &&
       rm "$FILE" &&
       popd >/dev/null ||
