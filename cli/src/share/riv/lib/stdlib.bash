@@ -275,7 +275,7 @@ function __is_sbc() {
   local MODEL_FILE=/sys/firmware/devicetree/base/model
 
   test -f "$MODEL_FILE" &&
-  grep -iqE "raspbery pi|rock pi|radxa zero" "$MODEL_FILE"
+  grep -iqE "raspberry pi|rock pi|radxa zero" "$MODEL_FILE"
 }
 
 ##
