@@ -12,14 +12,6 @@ load ../../../../helpers/lib_helpers/stdlib_helpers
   assert_output ""
 }
 
-@test "stdlib: __load_config: >0 arguments" {
-  export _RIV_CONFIG=
-
-  run __load_config one
-
-  assert_failure
-}
-
 @test "stdlib: __load_config: non-existant supplemental path" {
   export _RIV_CONFIG=
   export RIV_CONFIG=/path/that/does/not/exist

@@ -40,12 +40,12 @@ function __get_config() {
 #   __load_config
 #
 function __load_config() {
-  [[ "$#" == "0" ]] || return 1
   [[ "$_RIV_CONFIG" == "" ]] || return 0
 
   local CONFIG_PATH=
   local SUPPLEMENTAL_CONFIG_PATH="${_RIV_ROOT}/etc/riv/config.yaml"
 
+  # shellcheck disable=SC2153
   if [[ "$RIV_CONFIG" == "" ]]; then
     CONFIG_PATH="${_RIV_ROOT}/share/riv/config.yaml"
   else

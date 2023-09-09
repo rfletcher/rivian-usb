@@ -31,7 +31,7 @@ function parse_options() {
 function remount() {
   local MOUNTS=()
 
-  __say "Remounting read-only filesystems as read/write..."
+  __say "Checking that filesystems are writable..."
 
   for DIR in "${DIRS[@]}"; do
     MOUNTS+=( "$(__find_mount "$DIR")" )
