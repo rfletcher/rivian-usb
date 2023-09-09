@@ -7,12 +7,12 @@
 source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 
 function main() {
-  riv version -l
-
-  __say "Starting up..."
+  __say "$(riv version -l) Starting up..."
 
   while true; do
     __say "Looping..."
+
+    # TODO all the things
 
     # sleep in the background so it doesn't block SIGTERM
     sleep 60 & wait $!
