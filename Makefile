@@ -2,6 +2,7 @@ SHELL=/bin/bash
 
 all: cli image
 clean: cli_clean image_clean
+lint: cli_lint
 test: cli_test image_test
 
 ## CLI ##
