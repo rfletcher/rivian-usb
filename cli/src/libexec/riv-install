@@ -125,9 +125,11 @@ function main() {
     }
 
     if __is_url "$SOURCE"; then
-      _fetch_remote
+      _fetch_remote ||
+      __die "There was a problem downloading the requested version"
     else
-      _fetch_local
+      _fetch_local ||
+      __die "There was a problem reading from ${SOURCE}"
     fi
   }
 
