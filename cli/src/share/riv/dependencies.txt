@@ -12,6 +12,7 @@ date:coreutils
 findmnt:util-linux
 git
 grep
+gunzip:gzip
 head:coreutils
 jq
 ln:coreutils

@@ -27,7 +27,7 @@ source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 
 ## Check script dependencies
 
-__require_dependencies curl tar rsync
+__require_dependencies curl cut git gunzip rsync sed tar
 
 ## Set defaults
 
@@ -35,6 +35,7 @@ CONFIGURE_SYSTEM=1
 COPY_FILES=1
 FORCE=
 TARGET=/opt/riv
+SHA=
 SOURCE=
 VERSION=
 
@@ -112,14 +113,18 @@ function main() {
 
       pushd "$TMPDIR" >/dev/null &&
       curl --fail --silent --location "$URL" > "$FILE" &&
-      tar zxf "$FILE" --strip-components=1 &&
-      rm "$FILE" &&
+      gunzip "$FILE" &&
+      SHA=$(git get-tar-commit-id < "${FILE%.gz}")
+      tar xf "${FILE%.gz}" --strip-components=1 &&
+      rm "${FILE%.gz}" &&
       popd >/dev/null ||
       return 1
     }
 
     function _fetch_local() {
       __say "Reading from source..."
+
+      SHA=$(git -C "$SOURCE" rev-parse HEAD 2>/dev/null)
 
       rsync -a --delete "${SOURCE}/" "$TMPDIR"/
     }
@@ -136,18 +141,18 @@ function main() {
   function _install() {
     __say "Installing files onto the system..."
 
-    if ! __is_raspberry_pi && [[ "$FORCE" != "1" ]]; then
+    local SOURCE_DIR FILE DIRS=( bin etc )
+
+    if __is_raspberry_pi; then
+      # shellcheck disable=SC2046
+      riv util-remount $(printf "/%s " "${DIRS[@]}") ||
+      return 1
+    elif [[ "$FORCE" != "1" ]]; then
       __die "This doesn't look like a Pi-like system. Add -f configure anyway."
     fi
 
-    local SOURCE_DIR FILE
-
     pushd "$TARGET" >/dev/null || return 1
-    for SOURCE_DIR in bin etc; do
-      if __is_raspberry_pi; then
-        riv util-remount "/${SOURCE_DIR}" || return 1
-      fi
-
+    for SOURCE_DIR in "${DIRS[@]}"; do
       find "$SOURCE_DIR" -type d -exec mkdir -p "/{}" \;
 
       while read -r FILE; do
@@ -168,19 +173,45 @@ function main() {
   }
 
   if [[ "$COPY_FILES" == "1" ]]; then
+    # shellcheck disable=SC2015
     _check_version &&
     _prepare &&
     _fetch &&
-    _copy_files
+    _set_version &&
+    _copy_files ||
+    __die "Unknown error updating \`riv\` files"
   fi
 
   if [[ "$CONFIGURE_SYSTEM" == "1" ]]; then
+    # shellcheck disable=SC2015
     _install &&
     _enable_service &&
-    _configure_mounts
+    _configure_mounts ||
+    __die "Unknown error configuring the system"
   fi
 
   _cleanup
+}
+
+function _set_version() {
+  local VERSION_TXT="$(find "${TMPDIR}" -name version.txt)"
+
+  if ! test -f "$VERSION_TXT"; then
+    __say "Can't find version.txt. Skipping version annotations."
+    return 0
+  fi
+
+  local BASE_VERSION="$(head -1 "$VERSION_TXT" | cut -d - -f 1)"
+
+  echo -n "$BASE_VERSION" > "$VERSION_TXT"
+  if [[ "$SHA" == "" ]]; then
+    echo >> "$VERSION_TXT"
+  else
+    echo "-${SHA:0:7}" >> "$VERSION_TXT"
+  fi
+  if __is_url "$SOURCE"; then
+    echo "$SOURCE" >> "$VERSION_TXT"
+  fi
 }
 
 function validate_input() {
