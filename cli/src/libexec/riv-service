@@ -7,7 +7,8 @@
 source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 
 function main() {
-  __say "$(riv version -l) Starting up..."
+  __say "$(riv version -l)"
+  __say "Starting up..."
 
   while true; do
     __say "Looping..."
