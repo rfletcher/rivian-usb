@@ -27,7 +27,7 @@ source "${_RIV_SHARE}/riv/lib/main.bash" || exit 1
 
 ## Check script dependencies
 
-__require_dependencies curl cut git gunzip rsync sed tar
+__require_dependencies curl cut git gunzip rsync tar
 
 ## Set defaults
 
